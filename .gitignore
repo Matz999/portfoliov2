@@ -1,0 +1,44 @@
+# ─── Sistema operativo ───────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/
+
+# ─── Editores ────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ─── Experimentos y bocetos locales ──────────────────────
+# HTMLs sueltos de pruebas viejas — los mantengo en disco
+# pero no van al deploy.
+_experiments/
+
+# ─── Capturas intermedias de las animaciones del hero ────
+# Los .webm son los raw outputs de MediaRecorder antes de
+# comprimir a MP4. Ya están en project_images/hero-*.mp4,
+# no hace falta versionarlos (20 MB innecesarios).
+hero-animations/*.webm
+
+# ─── Node / build (por si más adelante se agrega) ────────
+node_modules/
+dist/
+.cache/
+.parcel-cache/
+
+# ─── Env vars y secretos ─────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Logs ────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# ─── Archivos temporales ─────────────────────────────────
+*.tmp
+*.bak

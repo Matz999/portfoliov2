@@ -1,0 +1,1495 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Máximo Pulitano — Diseño Gráfico, Marketing Digital & Desarrollo Web · Buenos Aires</title>
+<meta name=”description” content=”Máximo Pulitano. Diseño soluciones gráficas para individuos y empresas de Buenos Aires Provincia.” />
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@300..600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=general-sans@700,800&display=swap">
+
+<style>
+  :root{
+    --bg:      #FFFFFF;
+    --ink:     #111111;
+    --ink-2:   #3a3a3a;
+    --mute:    #888880;
+    --line:    #E4E4E4;
+    --accent:  #8B1010;
+    --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
+    --sans:    'Inter Tight', system-ui, sans-serif;
+    --mono:    'JetBrains Mono', ui-monospace, monospace;
+    --gutter:  clamp(20px, 4vw, 56px);
+    --col-gap: clamp(16px, 2vw, 32px);
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-weight:400;
+    font-size:16px;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  img,svg,video{display:block;max-width:100%}
+
+  /* --- Navigation --- */
+  .nav{
+    position:fixed;
+    top:0;left:0;right:0;
+    z-index:100;
+    padding:20px var(--gutter);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(14px);
+    -webkit-backdrop-filter:blur(14px);
+    border-bottom:1px solid transparent;
+    transition:border-color .3s;
+  }
+  .nav.scrolled{border-bottom-color:var(--line)}
+  .brand{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:-.01em;
+    color:var(--ink);
+  }
+  .nav-links{
+    display:flex;
+    gap:36px;
+    font-family:var(--display);
+    font-size:13px;
+    font-weight:400;
+    letter-spacing:-.01em;
+  }
+  .nav-links a{color:var(--mute);transition:color .25s}
+  .nav-links a:hover{color:var(--ink)}
+
+  /* --- Section structure --- */
+  section{
+    padding:120px var(--gutter) 80px;
+    border-top:1px solid var(--line);
+    position:relative;
+  }
+  section:first-of-type{border-top:none}
+
+  /* --- Hero --- */
+  .hero{
+    min-height:100vh;
+    padding:120px var(--gutter) 60px;
+    position:relative;
+    overflow:visible;   /* let popup cards escape hero bounds without clipping */
+    z-index:10;         /* keeps them above the ticker gradient that follows in DOM */
+    border-top:none;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:clamp(24px, 4vw, 64px);
+    align-items:center;
+  }
+  .hero h1{
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(36px, 5.5vw, 80px);
+    line-height:.94;
+    letter-spacing:-.025em;
+    max-width:14ch;
+    position:relative;
+    z-index:1;
+  }
+  .hero h1 em{
+    font-style:normal;
+    font-weight:300;
+    color:var(--accent);
+  }
+  .hero h1 .dot-end{color:var(--accent)}
+
+  .node-graph{
+    position:relative;
+    width:100%;
+    height:100%;
+    min-height:60vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .node-graph svg{
+    width:100%;
+    max-width:760px;
+    height:100%;
+    max-height:80vh;
+    display:block;
+    overflow:visible;
+  }
+  .node-graph .link{
+    stroke:var(--ink);
+    stroke-width:1.8;
+    fill:none;
+    transition:stroke .3s, stroke-width .3s;
+  }
+  .node-graph .link.active{
+    stroke:var(--accent);
+    stroke-width:2.6;
+  }
+  /* Hover spotlight: thin red curves drawn from every other node to the hovered one */
+  .node-graph .hover-link{
+    stroke:var(--accent);
+    stroke-width:1.2;
+    fill:none;
+    opacity:.55;
+    pointer-events:none;
+  }
+  .node-graph .node{cursor:pointer}
+  .node-graph .node-circle{
+    fill:#fff;
+    stroke:var(--ink);
+    stroke-width:1.8;
+    r:14;
+    transition:r .25s cubic-bezier(.2,.7,.2,1), fill .25s, stroke .25s;
+  }
+  .node-graph .node:hover .node-circle,
+  .node-graph .node.active .node-circle{
+    fill:var(--accent);
+    stroke:var(--accent);
+    r:18;
+  }
+  .node-graph .node-label{
+    font-family:var(--mono);
+    font-weight:400;
+    font-size:11px;
+    fill:var(--ink);
+    pointer-events:none;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    transition:fill .25s, font-weight .25s;
+  }
+  .node-graph .node:hover .node-label,
+  .node-graph .node.active .node-label{
+    fill:var(--accent);
+    font-weight:700;
+  }
+
+  /* Floating popup on click — image + title */
+  .node-image{
+    position:absolute;
+    width:220px;
+    background:#fff;
+    border:1px solid var(--ink);
+    pointer-events:none;
+    z-index:60;
+    opacity:0;
+    transform:translate(-50%, calc(-100% - 24px)) scale(.92);
+    transition:opacity .35s cubic-bezier(.2,.7,.2,1), transform .45s cubic-bezier(.2,.7,.2,1);
+    box-shadow:0 20px 40px -15px rgba(0,0,0,.25);
+  }
+  .node-image.show{
+    opacity:1;
+    transform:translate(-50%, calc(-100% - 32px)) scale(1);
+  }
+  /* Flip below the node when the node is too close to the fixed header */
+  .node-image.below{
+    transform:translate(-50%, 24px) scale(.92);
+  }
+  .node-image.below.show{
+    transform:translate(-50%, 32px) scale(1);
+  }
+  .node-image .img-wrap{
+    aspect-ratio:4/3;
+    background:#1a1a1a;
+    overflow:hidden;
+  }
+  .node-image .img-wrap img,
+  .node-image .img-wrap video{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+  .node-image .title{
+    padding:10px 12px;
+    font-family:var(--display);
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:-.02em;
+    text-transform:lowercase;
+    color:var(--ink);
+    border-top:1px solid var(--line);
+  }
+  .node-image .title .num{
+    font-family:var(--mono);
+    font-size:9px;
+    font-weight:400;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--mute);
+    margin-right:8px;
+  }
+  .node-image .desc{
+    padding:0 12px 12px;
+    font-family:var(--sans);
+    font-size:11px;
+    line-height:1.45;
+    color:var(--ink-2);
+  }
+
+  /* --- Ticker gradient --- */
+  .ticker{
+    border-top:1px solid var(--ink);
+    border-bottom:1px solid var(--ink);
+    height:clamp(70px, 9vw, 106px);
+    overflow:hidden;
+    position:relative;
+  }
+  .ticker-gradient{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(
+      105deg,
+      #ffffff 0%,
+      #f5d0d0 12%,
+      #c84040 26%,
+      #8B1010 38%,
+      #3a0606 50%,
+      #111111 58%,
+      #3a0606 66%,
+      #8B1010 76%,
+      #c84040 86%,
+      #f5d0d0 94%,
+      #ffffff 100%
+    );
+    background-size:250% 250%;
+    animation:gradMove 9s ease-in-out infinite alternate;
+  }
+  /* Film-grain overlay */
+  .ticker-gradient::before{
+    content:'';
+    position:absolute;
+    inset:-100%;
+    width:300%;
+    height:300%;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='512' height='512'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.80' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    background-size:256px 256px;
+    opacity:.18;
+    mix-blend-mode:overlay;
+    animation:grainShift .45s steps(1) infinite;
+    pointer-events:none;
+  }
+  @keyframes gradMove{
+    0%   {background-position:0% 50%}
+    100% {background-position:100% 50%}
+  }
+  @keyframes grainShift{
+    0%  {transform:translate(0,0)}
+    11% {transform:translate(-4%,-4%)}
+    22% {transform:translate(4%,4%)}
+    33% {transform:translate(-4%,4%)}
+    44% {transform:translate(4%,-4%)}
+    55% {transform:translate(-4%,0)}
+    66% {transform:translate(0,4%)}
+    77% {transform:translate(4%,0)}
+    88% {transform:translate(0,-4%)}
+    100%{transform:translate(-4%,-4%)}
+  }
+
+  /* --- Work --- */
+  .work-intro{
+    font-family:var(--display);
+    font-weight:500;
+    font-size:clamp(22px, 3vw, 44px);
+    line-height:1.1;
+    letter-spacing:-.02em;
+    margin-bottom:56px;
+    max-width:26ch;
+  }
+  .work-intro em{font-style:normal;font-weight:300;color:var(--accent)}
+
+  .projects{
+    list-style:none;
+    border-top:1px solid var(--ink);
+    margin-left:calc(-1 * var(--gutter));
+    margin-right:calc(-1 * var(--gutter));
+  }
+  .project{
+    display:grid;
+    grid-template-columns:1fr 1fr 96px;
+    align-items:center;
+    gap:24px;
+    padding:26px var(--gutter);
+    border-bottom:1px solid rgba(128,128,128,.15);
+    position:relative;
+    overflow:hidden;
+  }
+  .project:hover{background-color:#1A0303}
+  .project:hover *{color:#fff !important}
+.p-title{
+    font-family:var(--display);
+    font-weight:500;
+    font-size:clamp(17px, 2vw, 28px);
+    letter-spacing:-.015em;
+    line-height:1.05;
+    position:relative;z-index:1;
+  }
+  .p-category{font-family:var(--sans);font-size:13px;color:var(--mute);position:relative;z-index:1}
+  .p-year{font-family:var(--mono);font-size:10px;color:var(--mute);text-align:right;letter-spacing:.05em;position:relative;z-index:1}
+
+  /* --- Approach --- */
+  #approach{transition:background-color .7s cubic-bezier(.2,.8,.2,1);color:var(--at, var(--ink))}
+  .about-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--col-gap)}
+  .about-title{
+    grid-column:1/7;
+    font-family:var(--display);
+    font-weight:700;
+    font-size:clamp(28px, 4vw, 60px);
+    line-height:.96;
+    letter-spacing:-.03em;
+  }
+  .about-title em{font-style:normal;font-weight:300;color:var(--aa, var(--accent))}
+  .about-body{
+    grid-column:8/13;
+    font-size:16px;
+    line-height:1.65;
+    color:var(--at2, var(--ink-2));
+    max-width:46ch;
+  }
+  .about-body p+p{margin-top:16px}
+  .about-actions{
+    grid-column:8/13;
+    margin-top:28px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .about-btn{
+    display:inline-flex;
+    align-items:center;
+    padding:11px 22px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:500;
+    letter-spacing:.01em;
+    background:#fff;
+    color:#111;
+    border:1px solid #fff;
+    border-radius:999px;
+    text-decoration:none;
+    transition:background .25s ease, color .25s ease, border-color .25s ease;
+  }
+  .about-btn:hover{
+    background:#000;
+    color:#fff;
+    border-color:#000;
+  }
+  .about-btn.icon{padding:11px 16px}
+  .about-btn svg{
+    width:18px;
+    height:18px;
+    display:block;
+    fill:currentColor;
+    transition:fill .25s ease;
+  }
+  .about-body .lead{
+    font-family:var(--display);
+    font-weight:600;
+    font-size:19px;
+    line-height:1.35;
+    color:var(--at, var(--ink));
+    margin-bottom:24px;
+    letter-spacing:-.02em;
+  }
+
+  /* --- Services (red draggable stickers) --- */
+  #services{padding-top:100px;padding-bottom:140px}
+  .services{
+    position:relative;
+    min-height:540px;
+    display:block;
+    background:none;
+    border:none;
+    /* Sticker size + horizontal gap — drives both width and symmetric layout */
+    --sw:340px;
+    --sg:36px;
+  }
+  .service{
+    position:absolute;
+    width:var(--sw);
+    height:460px; /* same size for all three */
+    top:40px;
+    padding:32px 28px 28px;
+    background:var(--accent); /* brand red used throughout */
+    color:#fff;
+    cursor:grab;
+    border:1.5px solid #000000;
+    border-radius:0;
+    user-select:none;
+    -webkit-user-select:none;
+    transition:transform .18s ease;
+    z-index:1;
+    touch-action:none;
+    overflow:hidden;
+  }
+  /* Symmetric centering: left/middle/right around the section centre */
+  .service:nth-of-type(1){ left: calc(50% - var(--sw) * 1.5 - var(--sg)) }
+  .service:nth-of-type(2){ left: calc(50% - var(--sw) * 0.5) }
+  .service:nth-of-type(3){ left: calc(50% + var(--sw) * 0.5 + var(--sg)) }
+
+
+  .service:hover{
+    z-index:3;
+    transform:translate(-2px, -2px);
+  }
+  .service.dragging{
+    cursor:grabbing;
+    z-index:10;
+    transform:translate(-3px, -3px);
+  }
+  /* Ghosts left behind while dragging — Windows 95 unrepainted-window trail */
+  .sticker-ghost{
+    position:absolute;
+    background:linear-gradient(
+      105deg,
+      #ffffff 0%,
+      #f5d0d0 12%,
+      #c84040 26%,
+      #8B1010 38%,
+      #3a0606 50%,
+      #111111 58%,
+      #3a0606 66%,
+      #8B1010 76%,
+      #c84040 86%,
+      #f5d0d0 94%,
+      #ffffff 100%
+    );
+    background-size:250% 250%;
+    background-position:0% 50%;
+    border:1px solid #000;
+    pointer-events:none;
+    z-index:0;
+    opacity:1;
+    transition:opacity .5s ease;
+  }
+  .service .num{
+    font-family:var(--mono);
+    font-size:12px;
+    color:rgba(255,255,255,.9);
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-weight:500;
+  }
+  .service h3{
+    font-family:'General Sans', var(--display);
+    font-weight:800;
+    font-size:clamp(40px, 4.6vw, 64px);
+    line-height:.95;
+    letter-spacing:-.035em;
+    margin-top:32px;
+    color:#fff;
+  }
+  .service p{
+    color:rgba(255,255,255,.94);
+    font-family:var(--sans);
+    font-weight:500;
+    font-size:14px;
+    line-height:1.55;
+    margin-top:18px;
+    max-width:30ch;
+  }
+
+  /* --- Contact --- */
+  .contact{padding-bottom:0;position:relative;overflow:hidden}
+  .contact-bg-canvas{position:absolute;width:120%;height:120%;left:15%;top:-10%;z-index:0;pointer-events:none}
+  .contact-content{position:relative;z-index:1}
+  .contact-title{
+    font-family:var(--display);
+    font-weight:800;
+    font-size:clamp(44px, 9vw, 130px);
+    line-height:.88;
+    letter-spacing:-.04em;
+    margin-bottom:60px;
+  }
+  .contact-title em{font-style:normal;font-weight:300;color:var(--accent)}
+  .contact-title .c-char{display:inline;transition:color 0.08s,-webkit-text-stroke 0.08s}
+  .contact-title .c-char.lit{color:#fff;-webkit-text-stroke:1.5px #800000;paint-order:stroke fill}
+  .contact-grid{
+    display:grid;grid-template-columns:repeat(12,1fr);
+    gap:var(--col-gap);align-items:end;padding-bottom:80px;
+  }
+  .contact-block{grid-column:span 4}
+  .contact-block .k{
+    font-family:var(--mono);font-size:10px;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--mute);margin-bottom:12px;display:block;
+  }
+  .contact-block .v{
+    font-family:var(--display);font-weight:500;
+    font-size:clamp(16px, 1.6vw, 22px);
+    line-height:1.2;letter-spacing:-.01em;
+  }
+  .contact-block .v a{
+    display:inline-block;border-bottom:1px solid var(--ink);
+    padding-bottom:2px;transition:color .3s, border-color .3s;
+  }
+  .contact-block .v a:hover{color:var(--accent);border-color:var(--accent)}
+  .cta{grid-column:span 4;align-self:center}
+  .cta a{
+    background:#fff;color:var(--accent);border:1.5px solid var(--accent);
+    font-family:var(--display);font-weight:800;font-size:clamp(20px,2vw,28px);
+    letter-spacing:-.02em;padding:22px 36px;border-radius:999px;
+    display:inline-flex;align-items:center;transition:background .3s,color .3s,border-color .3s;
+  }
+  .cta a:hover{background:#111;color:#fff;border-color:#111}
+  .cta a .arrow{
+    width:18px;height:18px;display:inline-flex;align-items:center;
+    justify-content:center;border:1px solid currentColor;
+    border-radius:50%;font-size:10px;
+  }
+
+  /* --- Footer --- */
+  footer{
+    border-top:1px solid var(--line);padding:28px var(--gutter);
+    display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;
+    font-family:var(--mono);font-size:10px;text-transform:uppercase;
+    letter-spacing:.12em;color:var(--mute);align-items:center;
+  }
+  footer a:hover{color:var(--ink)}
+  footer .center{text-align:center}
+  footer .right{text-align:right;display:flex;justify-content:flex-end;gap:18px}
+
+  /* --- Responsive --- */
+  @media (max-width:920px){
+    .nav-links{gap:20px}
+    .hero{padding-top:100px;min-height:100svh}
+    .about-grid{grid-template-columns:1fr;gap:32px}
+    .about-title,.about-body,.about-actions{grid-column:1/-1}
+    #services{padding-top:80px;padding-bottom:100px}
+    .services{min-height:auto;display:flex;flex-direction:column;gap:24px;align-items:center}
+    .service{position:static;width:min(340px,90%);padding:24px 22px}
+    .project{
+      grid-template-columns:1fr auto;
+      grid-template-rows:auto auto;row-gap:6px;padding:20px var(--gutter);
+    }
+    .project .p-title{grid-row:1;grid-column:1/-1}
+    .project .p-category{grid-row:2;grid-column:1;font-size:12px}
+    .project .p-year{grid-row:2;grid-column:2;text-align:right;font-size:10px}
+    .contact-grid{grid-template-columns:1fr;gap:28px}
+    .contact-block,.cta{grid-column:1/-1}
+    footer{grid-template-columns:1fr;text-align:center}
+    footer .right,footer .center{text-align:center;justify-content:center}
+  }
+
+  /* --- Reveal --- */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .reveal.d1{transition-delay:.08s}
+  .reveal.d2{transition-delay:.16s}
+  .reveal.d3{transition-delay:.24s}
+
+  ::selection{background:var(--accent);color:#fff}
+
+  /* --- Project row as link --- */
+  a.project{color:inherit;text-decoration:none}
+  /* Hide the OS cursor over project rows — the preview image becomes the cursor */
+  @media (hover:hover){
+    a.project, a.project *{cursor:none}
+  }
+
+  /* --- Cursor-follow project preview --- */
+  .preview{
+    position:fixed;
+    top:0;left:0;
+    width:clamp(220px, 22vw, 320px);
+    aspect-ratio:4/3;
+    pointer-events:none;
+    z-index:90;
+    opacity:0;
+    transform:translate(-50%,-50%) scale(.94);
+    transition:opacity .3s cubic-bezier(.2,.7,.2,1), transform .45s cubic-bezier(.2,.7,.2,1);
+    background:#0d0d0d;
+    overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.25);
+  }
+  .preview.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  .preview img{width:100%;height:100%;object-fit:cover;display:block}
+  /* Transparent mode: no bg/shadow, adapts to image aspect, never crops */
+  .preview.transparent{
+    aspect-ratio:auto;
+    background:transparent;
+    box-shadow:none;
+    overflow:visible;
+  }
+  .preview.transparent img{
+    width:100%;
+    height:auto;
+    object-fit:contain;
+  }
+  /* Half-size modifier — used for the varios cherry */
+  .preview.small{
+    width:clamp(110px, 11vw, 160px);
+  }
+  @media (max-width:920px), (hover:none){
+    .preview{display:none !important}
+  }
+</style>
+</head>
+<body>
+
+<!-- Project preview (cursor-follow) -->
+<div class="preview" id="preview" aria-hidden="true">
+  <img alt="" src="" />
+</div>
+
+<nav class="nav" id="nav">
+  <a href="#top" class="brand">Máximo Pulitano</a>
+  <div class="nav-links">
+    <a href="#work">Work</a>
+    <a href="#approach">About</a>
+    <a href="#services">Services</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<main id="top">
+
+  <!-- HERO -->
+  <section class="hero">
+    <h1 class="reveal">
+      Diseño<br>
+      <em>soluciones</em> gráficas<br>
+      para ideas que<br>
+      merecen forma<span class="dot-end">.</span>
+    </h1>
+    <div class="node-graph" id="nodeGraph">
+      <svg id="nodeGraphSvg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet"></svg>
+    </div>
+  </section>
+
+  <!-- Ticker -->
+  <div class="ticker">
+    <div class="ticker-gradient"></div>
+  </div>
+
+  <!-- WORK -->
+  <section id="work">
+    <h2 class="work-intro reveal">
+      Proyectos seleccionados que <em>traducen</em> ideas en sistemas visuales claros<span style="color:var(--accent)">.</span>
+    </h2>
+    <ul class="projects reveal d1">
+      <li>
+        <a class="project" href="projects/studio-vanta.html" data-preview="project_images/vanta1.png" data-preview-mode="transparent">
+          <span class="p-title">Studio Vanta</span>
+          <span class="p-category">Identidad &amp; sitio web · Estudio</span>
+          <span class="p-year">2026</span>
+        </a>
+      </li>
+      <li>
+        <a class="project" href="projects/mamiferos-argentinos.html" data-preview="project_images/mamifero_logo.png" data-preview-mode="transparent">
+          <span class="p-title">Mamíferos Argentinos</span>
+          <span class="p-category">Rediseño web gubernamental · Identidad</span>
+          <span class="p-year">2024</span>
+        </a>
+      </li>
+      <li>
+        <a class="project" href="projects/varios.html" data-preview="project_images/cherry.webp" data-preview-mode="transparent" data-preview-size="small">
+          <span class="p-title">Varios</span>
+          <span class="p-category">Piezas sueltas · Exploraciones</span>
+          <span class="p-year">2024–2026</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <!-- APPROACH -->
+  <section id="approach">
+    <div class="about-grid">
+      <h2 class="about-title reveal">
+        Forma que<br>
+        <em>sigue</em> la idea<span style="color:var(--aa, var(--accent))">.</span>
+      </h2>
+      <div class="about-body reveal d1">
+        <p class="lead">Soy diseñador gráfico basado en Buenos Aires. Trabajo en la intersección entre identidad, interfaz y marketing.</p>
+        <p>Cada proyecto arranca con una pregunta antes que con un Figma. ¿Qué tiene que decir esto? ¿A quién? ¿Cuándo? La estética es consecuencia, no punto de partida.</p>
+        <p>Trabajo con marcas y personas que entienden que el diseño no es decoración: es la herramienta más barata para parecer serio cuando aún no lo sos.</p>
+      </div>
+      <div class="about-actions reveal d2">
+        <a class="about-btn" href="cv.pdf" target="_blank" rel="noopener" download>CV</a>
+        <a class="about-btn icon" href="https://github.com/maximopulitano" target="_blank" rel="noopener" aria-label="GitHub">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 .296C5.371.296 0 5.667 0 12.296c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577 0-.286-.011-1.244-.017-2.256-3.338.725-4.042-1.416-4.042-1.416-.546-1.388-1.333-1.758-1.333-1.758-1.089-.744.083-.729.083-.729 1.205.085 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.605-2.665-.303-5.466-1.333-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23a11.51 11.51 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.119 3.176.769.84 1.235 1.911 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921.43.371.815 1.104.815 2.226 0 1.606-.014 2.901-.014 3.293 0 .319.192.694.801.576C20.566 22.092 24 17.594 24 12.296 24 5.667 18.629.296 12 .296z"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="services reveal">
+      <div class="service">
+        <div>
+          <h3>Diseño Gráfico</h3>
+          <p>Identidad visual, sistemas de marca, piezas editoriales, materiales impresos y digitales con consistencia tipográfica y conceptual. Desde el logotipo y sus variables hasta manuales de uso completos, con foco en decisiones que sostienen el mensaje sin agregar ruido decorativo. Cada proyecto arranca con la pregunta antes que con la herramienta.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div>
+          <h3>Marketing Digital</h3>
+          <p>Dirección creativa para redes, campañas pagas, contenido orgánico y estrategias que conviertan el scroll en clic. Diseño de posteos, carruseles y reels; creatividades para pauta en Meta Ads y Google. Análisis de métricas para iterar rápido sobre lo que funciona y descartar sin culpa lo que no.</p>
+        </div>
+      </div>
+      <div class="service">
+        <div>
+          <h3>Desarrollo Web</h3>
+          <p>Sitios estáticos, landings y portfolios construidos con HTML/CSS/JS o Webflow. Veloces, accesibles y mantenibles. Stack según la necesidad: React para apps con estado, JavaScript vanilla para landings livianas, Express + PostgreSQL cuando hace falta persistir datos. Sin frameworks de más, sin abstracciones que se lleven puesto el rendimiento.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact">
+    <canvas id="contact-canvas" class="contact-bg-canvas"></canvas>
+    <div class="contact-content">
+      <h2 class="contact-title reveal">
+        ¿Tenés una idea<br>en mente?
+      </h2>
+      <div class="contact-grid">
+        <div class="contact-block reveal d1">
+          <span class="k">Email</span>
+          <p class="v"><a href="mailto:maximovpulitano@gmail.com">maximovpulitano@gmail.com</a></p>
+        </div>
+        <div class="contact-block reveal d2">
+          <span class="k">WhatsApp</span>
+          <p class="v"><a href="https://wa.me/541121569385" target="_blank" rel="noopener">+54 11 2156 9385</a></p>
+        </div>
+        <div class="cta reveal d3">
+          <a href="https://wa.me/541121569385" target="_blank" rel="noopener">
+            Iniciar proyecto
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="left">@maximopulitano</div>
+  <div class="center"></div>
+  <div class="right">
+    <a href="#" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="#" target="_blank" rel="noopener">Instagram</a>
+    <a href="#" target="_blank" rel="noopener">Behance</a>
+  </div>
+</footer>
+
+<script>
+// ─── Nav border on scroll ─────────────────────────────────────────────────────
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 8);
+}, {passive:true});
+
+// ─── Approach colour wheel ────────────────────────────────────────────────────
+const APPROACH_SHADES = [
+  { bg:'#FFFFFF', text:'#111111', text2:'#2a2a2a', accent:'#8B1010' },
+  { bg:'#FDE8E8', text:'#111111', text2:'#4a2020', accent:'#8B1010' },
+  { bg:'#F0B8B8', text:'#111111', text2:'#5a2828', accent:'#6B0808' },
+  { bg:'#C85050', text:'#FFFFFF', text2:'#fce8e8', accent:'#FFD0D0' },
+  { bg:'#8B1010', text:'#FFFFFF', text2:'#f0c0c0', accent:'#FFCCCC' },
+  { bg:'#3A0606', text:'#FFFFFF', text2:'#c09090', accent:'#FFB0B0' },
+];
+const approachEl = document.getElementById('approach');
+let approachIdx = 0;
+
+function applyApproach(idx) {
+  const s = APPROACH_SHADES[idx];
+  approachEl.style.backgroundColor = s.bg;
+  approachEl.style.setProperty('--at',  s.text);
+  approachEl.style.setProperty('--at2', s.text2);
+  approachEl.style.setProperty('--aa',  s.accent);
+}
+applyApproach(0);
+
+function updateApproachColour() {
+  const rect  = approachEl.getBoundingClientRect();
+  const viewH = window.innerHeight;
+  const start = viewH * 0.85;
+  const end   = viewH * 0.10;
+  const progress = Math.max(0, Math.min(1, (start - rect.top) / (start - end)));
+  const idx = Math.min(APPROACH_SHADES.length - 1, Math.floor(progress * APPROACH_SHADES.length));
+  if (idx !== approachIdx) { approachIdx = idx; applyApproach(idx); }
+}
+window.addEventListener('scroll', updateApproachColour, {passive:true});
+
+// ─── Reveal on scroll ─────────────────────────────────────────────────────────
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+  });
+}, {threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// ─── Cursor-follow project preview ───────────────────────────────────────────
+(() => {
+  const preview = document.getElementById('preview');
+  if (!preview) return;
+  const img = preview.querySelector('img');
+  let tx = window.innerWidth/2, ty = -300, cx = tx, cy = ty;
+  const preloaded = {};
+
+  // Preload preview images so swaps are instant
+  document.querySelectorAll('a.project').forEach(el => {
+    const src = el.dataset.preview;
+    if (src && !preloaded[src]){
+      const i = new Image();
+      i.src = src;
+      preloaded[src] = i;
+    }
+  });
+
+  document.querySelectorAll('a.project').forEach(el => {
+    el.addEventListener('pointerenter', () => {
+      const src = el.dataset.preview;
+      if (src) img.src = src;
+      preview.classList.toggle('transparent', el.dataset.previewMode === 'transparent');
+      preview.classList.toggle('small', el.dataset.previewSize === 'small');
+      preview.classList.add('show');
+    });
+    el.addEventListener('pointerleave', () => {
+      preview.classList.remove('show');
+    });
+  });
+
+  window.addEventListener('pointermove', e => { tx = e.clientX; ty = e.clientY; });
+
+  function loop(){
+    cx += (tx - cx) * 0.16;
+    cy += (ty - cy) * 0.16;
+    preview.style.left = cx + 'px';
+    preview.style.top  = cy + 'px';
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+
+
+<script>
+// ─── Contact section dot animation ───────────────────────────────────────────
+(function(){
+  const section = document.getElementById('contact');
+  const canvas  = document.getElementById('contact-canvas');
+  const ctx     = canvas.getContext('2d');
+
+  const RED      = '#800000';
+  const BURGUNDY = '#6d0019';
+
+  // Canvas is SCALE× larger than section so dots have room to spread
+  const SCALE = 3;
+
+  let visW=0, visH=0, offX=0, offY=0;
+  const mouse = {x:-9999, y:-9999};
+  const dots  = [];
+  const ROWS  = 8, COLS = 8;
+
+  let activeDot=null, prevActiveDot=null;
+
+  function resize(){
+    canvas.width  = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+
+    // Visible window is the centre third of the canvas
+    visW = canvas.width  / SCALE;
+    visH = canvas.height / SCALE;
+    offX = (canvas.width  - visW) / 2;
+    offY = (canvas.height - visH) / 2;
+
+    dots.length = 0;
+    const marginX = visW * 0.15;
+    const marginY = visH * 0.15;
+
+    for(let row=0; row<ROWS; row++){
+      for(let col=0; col<COLS; col++){
+        const x = offX + marginX + (visW - marginX*2)*(col/(COLS-1));
+        const y = offY + marginY + (visH - marginY*2)*(row/(ROWS-1));
+        dots.push({homeX:x,homeY:y,x,y,targetX:x,targetY:y,progress:0,secondaryProgress:0});
+      }
+    }
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  section.addEventListener('mousemove', e => {
+    // Ignore movement while pointer is over the CTA button (or its link)
+    if (e.target.closest('.cta')){ mouse.x = -9999; mouse.y = -9999; return; }
+    const canvasRect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - canvasRect.left;
+    mouse.y = e.clientY - canvasRect.top;
+  });
+  section.addEventListener('mouseleave', () => { mouse.x=-9999; mouse.y=-9999; });
+
+  function roundedRect(x,y,w,h,r){
+    r=Math.min(r,w/2,h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);
+    ctx.lineTo(x+w-r,y);
+    ctx.arcTo(x+w,y,x+w,y+r,r);
+    ctx.lineTo(x+w,y+h-r);
+    ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+    ctx.lineTo(x+r,y+h);
+    ctx.arcTo(x,y+h,x,y+h-r,r);
+    ctx.lineTo(x,y+r);
+    ctx.arcTo(x,y,x+r,y,r);
+    ctx.closePath();
+  }
+
+  function halfSize(dot){
+    const maxHalf=Math.min(visW,visH)*0.20;
+    return Math.min(24+30*dot.secondaryProgress,maxHalf);
+  }
+
+  function update(){
+    activeDot=null;
+
+    for(const dot of dots){
+      const p=dot.progress;
+      const maxCardSize=Math.min(visW,visH)*0.40;
+      const width=Math.min(28+(visW*0.78-28)*p,maxCardSize);
+      const height=Math.min(28+(visH*0.78-28)*p,maxCardSize);
+      if(mouse.x>dot.x-width/2&&mouse.x<dot.x+width/2&&mouse.y>dot.y-height/2&&mouse.y<dot.y+height/2){
+        activeDot=dot; break;
+      }
+    }
+
+    if(!activeDot){
+      for(const dot of dots){
+        if(Math.hypot(mouse.x-dot.x,mouse.y-dot.y)<30){ activeDot=dot; break; }
+      }
+    }
+
+    if(activeDot!==prevActiveDot){
+      if(activeDot){
+        const maxCardSize=Math.min(visW,visH)*0.40;
+        const currentSize=Math.min(48+60*activeDot.secondaryProgress,maxCardSize);
+        activeDot.progress=Math.max(0,Math.min(1,(currentSize-28)/(visW*0.78-28)));
+      }
+      prevActiveDot=activeDot;
+    }
+
+    dots.forEach(dot=>{
+      if(activeDot){
+        if(dot===activeDot){
+          dot.progress+=(1-dot.progress)*0.001;
+          dot.secondaryProgress+=(0-dot.secondaryProgress)*0.01;
+        } else {
+          dot.progress+=(0-dot.progress)*0.02;
+          dot.secondaryProgress+=(1-dot.secondaryProgress)*0.015;
+        }
+      } else {
+        dot.progress+=(0-dot.progress)*0.02;
+        dot.secondaryProgress+=(0-dot.secondaryProgress)*0.02;
+      }
+    });
+
+    const gridCX=offX+visW/2, gridCY=offY+visH/2;
+    dots.forEach(dot=>{
+      const sp=dot===activeDot?0:dot.secondaryProgress;
+      const scale=1+sp*0.6;
+      dot.targetX=gridCX+(dot.homeX-gridCX)*scale;
+      dot.targetY=gridCY+(dot.homeY-gridCY)*scale;
+    });
+
+    if(activeDot){
+      const p=activeDot.progress;
+      const cardX=activeDot.homeX, cardY=activeDot.homeY;
+      const maxCardSize=Math.min(visW,visH)*0.40;
+      const cardWidth=Math.min(28+(visW*0.78-28)*p,maxCardSize);
+      const cardHeight=Math.min(28+(visH*0.78-28)*p,maxCardSize);
+      const dotRadius=18, padding=40;
+      dots.forEach(dot=>{
+        if(dot===activeDot) return;
+        let tx=dot.homeX, ty=dot.homeY;
+        const left=cardX-cardWidth/2-dotRadius-padding;
+        const right=cardX+cardWidth/2+dotRadius+padding;
+        const top=cardY-cardHeight/2-dotRadius-padding;
+        const bottom=cardY+cardHeight/2+dotRadius+padding;
+        if(tx>left&&tx<right&&ty>top&&ty<bottom){
+          const dx=tx-cardX, dy=ty-cardY;
+          if(Math.abs(dx/cardWidth)>Math.abs(dy/cardHeight)){ tx=dx>0?right:left; }
+          else { ty=dy>0?bottom:top; }
+        }
+        dot.targetX=tx; dot.targetY=ty;
+      });
+      activeDot.targetX=activeDot.homeX; activeDot.targetY=activeDot.homeY;
+    }
+
+    for(let iter=0;iter<12;iter++){
+      for(let i=0;i<dots.length;i++){
+        const a=dots[i]; if(a===activeDot) continue;
+        const halfA=halfSize(a);
+        for(let j=i+1;j<dots.length;j++){
+          const b=dots[j]; if(b===activeDot) continue;
+          const minDist=halfA+halfSize(b);
+          const dx=b.targetX-a.targetX, dy=b.targetY-a.targetY;
+          const ox=minDist-Math.abs(dx), oy=minDist-Math.abs(dy);
+          if(ox>0&&oy>0){
+            if(ox<oy){ const push=ox/2; if(dx>=0){a.targetX-=push;b.targetX+=push;}else{a.targetX+=push;b.targetX-=push;} }
+            else      { const push=oy/2; if(dy>=0){a.targetY-=push;b.targetY+=push;}else{a.targetY+=push;b.targetY-=push;} }
+          }
+        }
+      }
+    }
+
+    dots.forEach(dot=>{ dot.x+=(dot.targetX-dot.x)*0.08; dot.y+=(dot.targetY-dot.y)*0.08; });
+
+    for(let iter=0;iter<16;iter++){
+      for(let i=0;i<dots.length;i++){
+        const a=dots[i]; if(a===activeDot) continue;
+        const halfA=halfSize(a);
+        for(let j=i+1;j<dots.length;j++){
+          const b=dots[j]; if(b===activeDot) continue;
+          const minDist=halfA+halfSize(b);
+          const dx=b.x-a.x, dy=b.y-a.y;
+          const ox=minDist-Math.abs(dx), oy=minDist-Math.abs(dy);
+          if(ox>0&&oy>0){
+            if(ox<oy){ const push=ox/2; if(dx>=0){a.x-=push;b.x+=push;}else{a.x+=push;b.x-=push;} }
+            else      { const push=oy/2; if(dy>=0){a.y-=push;b.y+=push;}else{a.y+=push;b.y-=push;} }
+          }
+        }
+      }
+    }
+  }
+
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    const cx=offX+visW/2, cy=offY+visH/2;
+    dots.forEach(dot=>{
+      const ddx=dot.x-cx, ddy=dot.y-cy;
+      const len=Math.hypot(ddx,ddy);
+      if(len<1) return;
+      const px=-ddy/len, py=ddx/len;
+      const isActive=dot===activeDot;
+      const endWidth=isActive?3+dot.progress*16:1+dot.secondaryProgress*12;
+      ctx.beginPath();
+      ctx.moveTo(cx,cy);
+      ctx.lineTo(dot.x+px*endWidth/2,dot.y+py*endWidth/2);
+      ctx.lineTo(dot.x-px*endWidth/2,dot.y-py*endWidth/2);
+      ctx.closePath();
+      ctx.fillStyle='rgba(255,255,255,0.55)';
+      ctx.fill();
+    });
+
+    dots.forEach(dot=>{
+      if(dot===activeDot) return;
+      const maxSize=Math.min(visW,visH)*0.40;
+      const size=Math.min(48+60*dot.secondaryProgress,maxSize);
+      const radius=24-16*dot.secondaryProgress;
+      ctx.fillStyle=RED;
+      roundedRect(dot.x-size/2,dot.y-size/2,size,size,radius);
+      ctx.fill();
+    });
+
+    if(activeDot){
+      const p=activeDot.progress;
+      const maxCardSize=Math.min(visW,visH)*0.40;
+      const width=Math.min(28+(visW*0.78-28)*p,maxCardSize);
+      const height=Math.min(28+(visH*0.78-28)*p,maxCardSize);
+      const radius=6+(36-6)*p;
+      ctx.fillStyle=RED;
+      roundedRect(activeDot.x-width/2,activeDot.y-height/2,width,height,radius);
+      ctx.fill();
+      ctx.strokeStyle=RED; ctx.lineWidth=2;
+      roundedRect(activeDot.x-width/2,activeDot.y-height/2,width,height,radius);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(activeDot.x,activeDot.y,6,0,Math.PI*2);
+      ctx.fillStyle=RED; ctx.fill();
+    }
+  }
+
+  // ─── Per-character white effect ────────────────────────────────────────────
+  const titleEl = document.querySelector('#contact .contact-title');
+
+  // Wrap every non-whitespace character in a span
+  function wrapChars(node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const frag = document.createDocumentFragment();
+      for (const ch of node.textContent) {
+        if (ch.trim() === '') { frag.appendChild(document.createTextNode(ch)); }
+        else { const s=document.createElement('span'); s.className='c-char'; s.textContent=ch; frag.appendChild(s); }
+      }
+      node.parentNode.replaceChild(frag, node);
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      [...node.childNodes].forEach(wrapChars);
+    }
+  }
+  wrapChars(titleEl);
+
+  let charSpans = [];
+  let charRects = [];
+
+  function cacheCharRects() {
+    charSpans = Array.from(titleEl.querySelectorAll('.c-char'));
+    charRects = charSpans.map(s => { const r=s.getBoundingClientRect(); return {left:r.left,right:r.right,top:r.top,bottom:r.bottom}; });
+  }
+
+  window.addEventListener('resize', cacheCharRects);
+  window.addEventListener('scroll', cacheCharRects, {passive:true});
+  requestAnimationFrame(cacheCharRects);
+
+  function checkOverlaps() {
+    if (!charRects.length) return;
+    const cr = canvas.getBoundingClientRect();
+    const lit = new Set();
+
+    dots.forEach(dot => {
+      const sx = cr.left + dot.x;
+      const sy = cr.top  + dot.y;
+      let hw, hh;
+      if (dot === activeDot) {
+        const p = dot.progress;
+        const maxC = Math.min(visW, visH) * 0.40;
+        hw = hh = Math.min(28 + (visW * 0.78 - 28) * p, maxC) / 2;
+      } else {
+        const maxC = Math.min(visW, visH) * 0.40;
+        const size = Math.min(48 + 60 * dot.secondaryProgress, maxC);
+        hw = hh = size / 2;
+      }
+      charRects.forEach((rect, i) => {
+        if (sx+hw > rect.left && sx-hw < rect.right && sy+hh > rect.top && sy-hh < rect.bottom) lit.add(i);
+      });
+    });
+
+    charSpans.forEach((s, i) => { s.classList.toggle('lit', lit.has(i)); });
+  }
+
+  function animate(){ update(); draw(); checkOverlaps(); requestAnimationFrame(animate); }
+  animate();
+})();
+</script>
+
+
+<script>
+// ─── Hero: animated network of interests ─────────────────────────────────────
+(() => {
+  const graphEl = document.getElementById('nodeGraph');
+  const svg     = document.getElementById('nodeGraphSvg');
+  if (!graphEl || !svg) return;
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const W = 1200, H = 900;
+
+  // 7 nodes — los ejes que realmente definen el perfil
+  const nodes = [
+    { interest:'react',       desc:'Componentes con estado.',                    video:'project_images/hero-react.mp4'      },
+    { interest:'javascript',  desc:'Vanilla, sin dependencias.',                 video:'project_images/hero-javascript.mp4' },
+    { interest:'python',      desc:'Scripts que trabajan solos.',                video:'project_images/hero-python.mp4'     },
+    { interest:'postgres',    desc:'Consultas, joins, modelado.',                video:'project_images/hero-postgres.mp4'   },
+    { interest:'figma',       desc:'Prototipos y sistemas.',                     video:'project_images/hero-figma.mp4'      },
+    { interest:'design',      desc:'Interés liminal, creciente.',                video:'project_images/hero-design.mp4'     },
+    { interest:'ingeniería',  desc:'Cualquier aplicación, cualquier ámbito.',    video:'project_images/hero-ingenieria.mp4' },
+  ];
+  // Label = padded index (01, 02, …)
+  nodes.forEach((n, i) => { n.label = String(i + 1).padStart(2, '0'); });
+
+  // Pure random positions inside the viewBox (padded + min-distance)
+  const PAD = 120;
+  const MIN_DIST = 260;
+  nodes.forEach((n, i) => {
+    let x = 0, y = 0;
+    for (let attempts = 0; attempts < 100; attempts++){
+      x = PAD + Math.random() * (W - 2 * PAD);
+      y = PAD + Math.random() * (H - 2 * PAD);
+      let ok = true;
+      for (let j = 0; j < i; j++){
+        const dx = x - nodes[j].x, dy = y - nodes[j].y;
+        if (dx*dx + dy*dy < MIN_DIST * MIN_DIST){ ok = false; break; }
+      }
+      if (ok) break;
+    }
+    n.x = x; n.y = y;
+    n.tx = x; n.ty = y;
+    n.dir = 'down';
+  });
+  // Store rest positions
+  nodes.forEach(n => { n.tx = n.x; n.ty = n.y; });
+
+  // Meaningful connections — cada arista refleja una relación real
+  // 0 react · 1 javascript · 2 python · 3 postgres · 4 figma · 5 design · 6 ingeniería
+  const links = [
+    [0,1],  // react ↔ javascript          (React es JS)
+    [1,2],  // javascript ↔ python         (dos lenguajes de trabajo diario)
+    [1,3],  // javascript ↔ postgres       (frontend consulta la base)
+    [2,3],  // python ↔ postgres           (procesamiento de datos + scraping)
+    [4,5],  // figma ↔ design              (herramienta → disciplina)
+    [4,0],  // figma ↔ react               (del prototipo al componente)
+    [5,0],  // design ↔ react              (el diseño se materializa en interfaz)
+    [6,0],  // ingeniería ↔ react          (construir software)
+    [6,2],  // ingeniería ↔ python         (scripting como práctica ingenieril)
+    [6,3],  // ingeniería ↔ postgres       (modelar datos = pensar sistemas)
+    [6,5],  // ingeniería ↔ design         (diseño como disciplina de ingeniería)
+  ];
+
+  // Test mode: straight lines (was a quadratic bezier with side-bulge — kept the
+  // signature so the rest of the code doesn't change when we toggle back to curves).
+  function getCurve(x1, y1, x2, y2, side, curve = 0.16){
+    return `M ${x1} ${y1} L ${x2} ${y2}`;
+  }
+
+  // Pre-compute a side (+1 or -1) per link so they curve consistently
+  const linkSides = links.map((_, i) => (i % 2 === 0 ? 1 : -1));
+
+  // Build SVG elements (paths now, not lines)
+  const linkEls = links.map(([a,b]) => {
+    const p = document.createElementNS(SVG_NS,'path');
+    p.classList.add('link');
+    svg.appendChild(p);
+    return p;
+  });
+
+  const nodeEls = nodes.map((n, i) => {
+    const g = document.createElementNS(SVG_NS,'g');
+    g.classList.add('node');
+    g.dataset.idx = i;
+
+    const c = document.createElementNS(SVG_NS,'circle');
+    c.classList.add('node-circle');
+    c.setAttribute('cx', 0);
+    c.setAttribute('cy', 0);
+    g.appendChild(c);
+
+    const t = document.createElementNS(SVG_NS,'text');
+    t.classList.add('node-label');
+    let lx=0, ly=0, anchor='middle';
+    if (n.dir==='left'){  lx=-16; ly=5;  anchor='end'; }
+    if (n.dir==='right'){ lx= 16; ly=5;  anchor='start'; }
+    if (n.dir==='up'){    lx=  0; ly=-16; anchor='middle'; }
+    if (n.dir==='down'){  lx=  0; ly= 34; anchor='middle'; }
+    t.setAttribute('x', lx);
+    t.setAttribute('y', ly);
+    t.setAttribute('text-anchor', anchor);
+    t.textContent = n.label;
+    g.appendChild(t);
+
+    svg.appendChild(g);
+    return g;
+  });
+
+  // Hover spotlight: thin red curves from every other node to the hovered one
+  let hoverLines = [];
+  function clearHoverLines(){
+    hoverLines.forEach(({el}) => el.remove());
+    hoverLines = [];
+  }
+  function addHoverLines(idx){
+    clearHoverLines();
+    nodes.forEach((n, i) => {
+      if (i === idx) return;
+      const p = document.createElementNS(SVG_NS, 'path');
+      p.classList.add('hover-link');
+      // Alternate sides for visual variety
+      const side = (i + idx) % 2 === 0 ? 1 : -1;
+      p.setAttribute('d', getCurve(n.x, n.y, nodes[idx].x, nodes[idx].y, side, 0.12));
+      svg.insertBefore(p, nodeEls[0]); // render behind nodes
+      hoverLines.push({el: p, from: i, to: idx, side});
+    });
+  }
+
+  // Static render — no floating, nodes sit on the grid
+  nodes.forEach((n, i) => {
+    nodeEls[i].setAttribute('transform', `translate(${n.x}, ${n.y})`);
+  });
+  links.forEach(([a,b], i) => {
+    linkEls[i].setAttribute('d',
+      getCurve(nodes[a].x, nodes[a].y, nodes[b].x, nodes[b].y, linkSides[i]));
+  });
+
+  // Preload video metadata (light — just headers, no full download)
+  nodes.forEach(n => {
+    const v = document.createElement('video');
+    v.preload = 'metadata';
+    v.src = n.video;
+  });
+
+  // Hover → show small image near node; leave → hide
+  let activeIdx = -1;
+  let popupEl = null;
+
+  function shouldFlipBelow(nodeRect){
+    // Popup card is ~260px tall. Header is ~90px. If the node is close to
+    // the top of the viewport, put the card BELOW instead of above.
+    const POPUP_HEIGHT = 260;
+    const HEADER_H     = 90;
+    return nodeRect.top - HEADER_H < POPUP_HEIGHT + 24;
+  }
+
+  function showImage(i){
+    hideImage(true);
+    const n = nodes[i];
+    activeIdx = i;
+    nodeEls[i].classList.add('active');
+    linkEls.forEach((el, j) => {
+      const [a,b] = links[j];
+      if (a === i || b === i) el.classList.add('active');
+    });
+
+    // Position relative to actual node screen position
+    const nodeRect  = nodeEls[i].getBoundingClientRect();
+    const graphRect = graphEl.getBoundingClientRect();
+    const x = nodeRect.left + nodeRect.width/2  - graphRect.left;
+    const y = nodeRect.top  + nodeRect.height/2 - graphRect.top;
+
+    const flip = shouldFlipBelow(nodeRect);
+
+    popupEl = document.createElement('div');
+    popupEl.className = 'node-image' + (flip ? ' below' : '');
+    popupEl.innerHTML =
+      `<div class="img-wrap">` +
+        `<video src="${n.video}" autoplay loop muted playsinline preload="metadata" aria-label="${n.interest}"></video>` +
+      `</div>` +
+      `<div class="title"><span class="num">${n.label}</span>${n.interest}</div>` +
+      `<div class="desc">${n.desc}</div>`;
+    popupEl.style.left = x + 'px';
+    popupEl.style.top  = y + 'px';
+    graphEl.appendChild(popupEl);
+    requestAnimationFrame(() => popupEl.classList.add('show'));
+
+    // Track this node as the popup follows the floating motion
+    popupEl._idx = i;
+  }
+
+  function hideImage(skipState){
+    if (!skipState){
+      activeIdx = -1;
+      nodeEls.forEach(el => el.classList.remove('active'));
+      linkEls.forEach(el => el.classList.remove('active'));
+    }
+    if (popupEl){
+      const old = popupEl;
+      old.classList.remove('show');
+      setTimeout(() => old.remove(), 400);
+      popupEl = null;
+    }
+  }
+
+  // Track popup to node position each frame (so it follows the floating motion)
+  function trackPopup(){
+    if (popupEl && popupEl._idx >= 0){
+      const i = popupEl._idx;
+      const nodeRect  = nodeEls[i].getBoundingClientRect();
+      const graphRect = graphEl.getBoundingClientRect();
+      const x = nodeRect.left + nodeRect.width/2  - graphRect.left;
+      const y = nodeRect.top  + nodeRect.height/2 - graphRect.top;
+      popupEl.style.left = x + 'px';
+      popupEl.style.top  = y + 'px';
+      // Re-evaluate flip in case the node floated across the threshold
+      const flip = shouldFlipBelow(nodeRect);
+      popupEl.classList.toggle('below', flip);
+    }
+    requestAnimationFrame(trackPopup);
+  }
+  trackPopup();
+
+  // Hover in → show image + hover-lines; leave → hide both
+  nodeEls.forEach((el, i) => {
+    el.addEventListener('pointerenter', () => {
+      addHoverLines(i);
+      showImage(i);
+    });
+    el.addEventListener('pointerleave', () => {
+      clearHoverLines();
+      hideImage();
+    });
+  });
+})();
+</script>
+
+
+<script>
+// ─── Draggable service stickers (with Windows-95-style trail ghosts) ─────────
+(() => {
+  const GHOST_SPAWN_DIST = 2;   // px of movement between each ghost
+  const GHOST_HOLD_MS    = 1600; // how long ghost stays full opacity
+  const GHOST_FADE_MS    = 500;  // fade duration before removal
+
+  function spawnGhost(el, x, y){
+    const g = document.createElement('div');
+    g.className = 'sticker-ghost';
+    g.style.left   = x + 'px';
+    g.style.top    = y + 'px';
+    g.style.width  = el.offsetWidth  + 'px';
+    g.style.height = el.offsetHeight + 'px';
+    // Random slice of the ticker gradient so each ghost is a different colour
+    g.style.backgroundPosition = `${Math.random() * 100}% ${Math.random() * 100}%`;
+    el.parentElement.appendChild(g);
+    setTimeout(() => {
+      g.style.opacity = '0';
+      setTimeout(() => g.remove(), GHOST_FADE_MS);
+    }, GHOST_HOLD_MS);
+  }
+
+  const stickers = document.querySelectorAll('.service');
+  stickers.forEach(el => {
+    let dragging = false;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+    let lastGhostLeft = 0, lastGhostTop = 0;
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      const parent = el.parentElement;
+      const rect = el.getBoundingClientRect();
+      const pRect = parent.getBoundingClientRect();
+      startLeft = rect.left - pRect.left;
+      startTop  = rect.top  - pRect.top;
+      el.style.left = startLeft + 'px';
+      el.style.top  = startTop  + 'px';
+      startX = e.clientX;
+      startY = e.clientY;
+      lastGhostLeft = startLeft;
+      lastGhostTop  = startTop;
+      dragging = true;
+      el.classList.add('dragging');
+      el.setPointerCapture(e.pointerId);
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const nl = startLeft + dx;
+      const nt = startTop  + dy;
+      el.style.left = nl + 'px';
+      el.style.top  = nt + 'px';
+
+      // Drop a ghost every GHOST_SPAWN_DIST pixels of accumulated travel
+      const gdx = nl - lastGhostLeft;
+      const gdy = nt - lastGhostTop;
+      if (gdx*gdx + gdy*gdy >= GHOST_SPAWN_DIST * GHOST_SPAWN_DIST){
+        spawnGhost(el, lastGhostLeft, lastGhostTop);
+        lastGhostLeft = nl;
+        lastGhostTop  = nt;
+      }
+    });
+
+    const end = (e) => {
+      if (!dragging) return;
+      dragging = false;
+      el.classList.remove('dragging');
+      try { el.releasePointerCapture(e.pointerId); } catch(_){}
+    };
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+  });
+
+})();
+
+</script>
+
+</body>
+</html>
