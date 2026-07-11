@@ -1,0 +1,36 @@
+# ─── Normalización de line endings ───────────────────────
+# Todos los archivos de texto se guardan con LF en el repo,
+# y quedan LF también en el working copy (más portable,
+# evita el warning de CRLF en Windows).
+
+* text=auto eol=lf
+
+# ─── Archivos de texto explícitos (código fuente) ────────
+*.html   text eol=lf
+*.css    text eol=lf
+*.js     text eol=lf
+*.mjs    text eol=lf
+*.json   text eol=lf
+*.md     text eol=lf
+*.svg    text eol=lf
+*.txt    text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+
+# ─── Archivos binarios: nunca convertir ──────────────────
+# Sin este marcado Git podría corromper PDFs y videos
+# intentando aplicar conversión de line endings.
+
+*.pdf    binary
+*.png    binary
+*.jpg    binary
+*.jpeg   binary
+*.gif    binary
+*.webp   binary
+*.ico    binary
+*.mp4    binary
+*.webm   binary
+*.woff   binary
+*.woff2  binary
+*.ttf    binary
+*.otf    binary
