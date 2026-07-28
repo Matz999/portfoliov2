@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Máximo Pulitano</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>Máximo Pulitano</title>
 <meta name="description" content="Máximo Pulitano — diseño, front-end y desarrollo web en Buenos Aires. Interfaces pensadas para elevar a quien las usa." />
 
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -170,10 +169,12 @@
     r:14;
     transition:r .25s cubic-bezier(.2,.7,.2,1), fill .25s, stroke .25s;
   }
+  /* Stays white on hover — a filled node would disappear into the heat field
+     behind it; the ink stroke is what keeps it legible against the red */
   .node-graph .node:hover .node-circle,
   .node-graph .node.active .node-circle{
-    fill:var(--accent);
-    stroke:var(--accent);
+    fill:#fff;
+    stroke:var(--ink);
     r:18;
   }
   .node-graph .node-label{
@@ -1264,11 +1265,15 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   // Pre-compute a side (+1 or -1) per link so they curve consistently
   const linkSides = links.map((_, i) => (i % 2 === 0 ? 1 : -1));
 
+  // Temporarily off: the edges still exist as elements (and still drive which
+  // nodes burn hotter), they just aren't drawn. Flip back to true to show them.
+  const SHOW_LINKS = false;
+
   // Build SVG elements (paths now, not lines)
   const linkEls = links.map(([a,b]) => {
     const p = document.createElementNS(SVG_NS,'path');
     p.classList.add('link');
-    svg.appendChild(p);
+    if (SHOW_LINKS) svg.appendChild(p);
     return p;
   });
 
@@ -1314,8 +1319,12 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const R_LINK_VB = 110;  // nodes linked to it
   const R_REST_VB = 56;   // everything else
   const R_CUR_VB  = 150;  // the one trailing the cursor
+  // Node sources shrink with their distance from the cursor: at PROX_D_VB away a
+  // source is roughly half size, and it keeps shrinking toward PROX_MIN from there
+  const PROX_D_VB = 280;
+  const PROX_MIN  = .06;
   let R_HOT = R_HOT_VB, R_LINK = R_LINK_VB, R_REST = R_REST_VB,
-      R_CUR = R_CUR_VB, VEL_REF = 19;
+      R_CUR = R_CUR_VB, PROX_D = PROX_D_VB, VEL_REF = 19;
   // field threshold → the flat alpha that band holds
   const STEPS = [
     [26,   1],     // solid core — every source burns to full colour at its centre
@@ -1349,27 +1358,20 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
             :             (r - g) / d + 4;
     return h * 60;
   })();
-  const SRC_HSL = [
-    [ 0, .79, .30],   // the accent itself
-    [ 4, .86, .38],
-    [-3, .74, .23],
-    [ 2, .90, .45],
-    [-5, .82, .33],
-    [ 6, .88, .35],
-    [ 0, .72, .20],
-  ];
-  const CUR_HSL = [0, .79, .30];   // the cursor source is the accent, exactly
+  // Node 04's tint, now shared by every source — nodes, the hovered node's hot
+  // source and the cursor all run the same ramp. (Per-source variants would go
+  // back in here as an array of [Δhue, s, l] triples, one ramp built per entry.)
+  const BASE_HSL = [2, .90, .45];
   // A band's colour depends on how deep in the field it sits, not just on its
-  // alpha: the core keeps the accent's own depth, and the further out a band is
-  // the more saturated and lighter it gets. Chroma after compositing is alpha ×
-  // the colour's own chroma, so a dark red at 5% opacity greys out against the
+  // alpha: the core keeps the base tint's own depth, and the further out a band
+  // is the more saturated and lighter it gets. Chroma after compositing is alpha
+  // × the colour's own chroma, so a dark red at 5% opacity greys out against the
   // page while a pure one still reads red — the outer bands need the lift.
   const rampFor = ([dh, s, l]) => STEPS.map((_, i) => {
     const t = STEPS.length > 1 ? i / (STEPS.length - 1) : 0;
     return hslRgb(ACC_H + dh, s + (1 - s) * t, l + (.5 - l) * t);
   });
-  const HEAT_RAMP = SRC_HSL.map(rampFor);
-  const CUR_RAMP  = rampFor(CUR_HSL);
+  const RAMP = rampFor(BASE_HSL);
 
   const neighbours = nodes.map(() => new Set());
   links.forEach(([a,b]) => { neighbours[a].add(b); neighbours[b].add(a); });
@@ -1392,6 +1394,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   let cw = 0, ch = 0, heatImg = null, bandMap = null;
   let boxW = 0, boxH = 0;   // canvas box in CSS px
+  let boxL = 0, boxT = 0;   // …and its viewport position, refreshed every frame
   let srcX = [], srcY = [];    // node centres in graph-local px
   let hotX = 0, hotY = 0;      // spring position of the hot source
   let hotTX = 0, hotTY = 0;    // where it wants to be
@@ -1422,6 +1425,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       bandMap = new Uint8Array(cw * ch);
       painted = false;
     }
+    boxL = gr.left; boxT = gr.top;
     if (gr.width !== boxW || gr.height !== boxH){
       boxW = gr.width; boxH = gr.height;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1436,6 +1440,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     R_LINK = R_LINK_VB * vbScale;
     R_REST = R_REST_VB * vbScale;
     R_CUR  = R_CUR_VB  * vbScale;
+    PROX_D = PROX_D_VB * vbScale;
     VEL_REF = 30 * vbScale;   // px/frame at which the stretch maxes out
     srcX = []; srcY = [];
     nodeEls.forEach(el => {
@@ -1451,8 +1456,12 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   // the cursor source is what keeps it lit between nodes.
   const heroEl = graphEl.closest('section') || graphEl;
   heroEl.addEventListener('pointermove', (e) => {
-    ptrCX = e.clientX; ptrCY = e.clientY;
     if (armed) heatTarget = 1;
+    // Only track the pointer while it is over the canvas itself. Outside it the
+    // source holds its last position instead of following the cursor off-box.
+    const lx = e.clientX - boxL, ly = e.clientY - boxT;
+    if (lx < 0 || ly < 0 || lx > boxW || ly > boxH) return;
+    ptrCX = e.clientX; ptrCY = e.clientY;
   });
   heroEl.addEventListener('pointerleave', () => { heatTarget = 0; focusTarget = 0; });
 
@@ -1466,6 +1475,10 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     // Re-measure on entry: the hero settles after init (fonts, images, scroll),
     // so positions taken at load time can be stale by the first hover.
     measureGlow();
+    // A measurement can bail if the graph has no box yet (hidden tab, mid-layout).
+    // Without positions there is nothing to aim at, and assigning undefined here
+    // would poison the spring with NaN for good.
+    if (!srcX.length) return;
     glowIdx = i;
     hotTX = srcX[i];
     hotTY = srcY[i];
@@ -1491,7 +1504,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       }
       return;
     }
-    if (!heatImg) { measureGlow(); if (!heatImg) return; }
+    // Retry a measurement that bailed earlier, so a first hover taken mid-layout
+    // recovers on the next frame instead of leaving the field blank
+    if (!heatImg || !srcX.length) { measureGlow(); if (!heatImg) return; }
 
     // Spring toward the node — the slight overshoot is what reads as liquid
     hotVX = (hotVX + (hotTX - hotX) * SPRING) * DAMP;
@@ -1511,6 +1526,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     // Cursor source — its own, looser spring, so it lags the pointer and smears
     // in the direction it is being dragged. Read the rect live: it moves on scroll.
     const gr = graphEl.getBoundingClientRect();
+    boxL = gr.left; boxT = gr.top;   // the box moves on scroll — keep the bounds test honest
     const curTX = ptrCX - gr.left;
     const curTY = ptrCY - gr.top;
     if (!curSeen && armed){ curX = curTX; curY = curTY; curSeen = true; }
@@ -1526,6 +1542,22 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
     const hotR2 = (R_HOT * bloom) * (R_HOT * bloom) * heat * focus;
     const curR2 = curSeen ? R_CUR * R_CUR * heat : 0;
+
+    // The cursor source reflects off the walls of the box. Each edge it comes
+    // near gets a mirror-image source on the far side, so the heat that would
+    // have spilled out piles back in and the blob flattens and spreads along the
+    // wall instead of being sliced off by it. Mirroring the *pixel* rather than
+    // the source means the reflections reuse the same stretched frame for free.
+    // Entry [1,0,1,0] is the identity — the real source.
+    const mirrors = [[1, 0, 1, 0]];
+    if (curR2){
+      const reach = R_CUR * 2;
+      if (curX         < reach) mirrors.push([-1, 0,        1, 0]);
+      if (boxW - curX  < reach) mirrors.push([-1, 2 * boxW, 1, 0]);
+      if (curY         < reach) mirrors.push([ 1, 0,       -1, 0]);
+      if (boxH - curY  < reach) mirrors.push([ 1, 0,       -1, 2 * boxH]);
+    }
+    const nMirror = mirrors.length;
     const wobT  = now * .0009;
     const wobC = Math.cos(wobT), wobS = Math.sin(wobT);
     // Per-node source strength: the focused node's heat comes from the hot source,
@@ -1537,6 +1569,12 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       else if (glowIdx >= 0 && neighbours[glowIdx].has(i))
                                                     r = R_REST + (R_LINK - R_REST) * focus;
       else                                          r = R_REST;
+      // …then shrink it by how far the node sits from the cursor, so the field
+      // pools around the pointer and distant nodes dwindle to almost nothing
+      if (curSeen){
+        const dx = srcX[i] - curX, dy = srcY[i] - curY;
+        r *= PROX_MIN + (1 - PROX_MIN) / (1 + (dx * dx + dy * dy) / (PROX_D * PROX_D));
+      }
       return r * r * heat;
     });
 
@@ -1549,8 +1587,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       for (let cx = 0; cx < cw; cx++){
         const px = (cx + .5) * CELL;
 
-        let total = 0, best = 0;
-        let dom = glowIdx < 0 ? 0 : glowIdx;
+        let total = 0;
 
         // Hot source, measured in its own stretched frame
         if (hotR2){
@@ -1565,26 +1602,26 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
           const s3 = s * (3 - 4 * s * s);
           const c3 = c * (4 * c * c - 3);
           total = hotR2 / hd2 * (1 + .12 * (s3 * wobC + c3 * wobS));
-          best  = total;
         }
 
-        // Cursor source, in its own stretched frame
+        // Cursor source, in its own stretched frame — plus one pass per active
+        // wall reflection, each measured from the mirrored pixel
         if (curR2){
-          const cdx = px - curX, cdy = py - curY;
-          const crx = ( cdx * cca + cdy * csa) / csx;
-          const cry = (-cdx * csa + cdy * cca) / csy;
-          const c = curR2 / (crx * crx + cry * cry || 1);
-          total += c;
-          if (c > best){ best = c; dom = -1; }
+          for (let m = 0; m < nMirror; m++){
+            const mm = mirrors[m];
+            const cdx = (mm[0] * px + mm[1]) - curX;
+            const cdy = (mm[2] * py + mm[3]) - curY;
+            const crx = ( cdx * cca + cdy * csa) / csx;
+            const cry = (-cdx * csa + cdy * cca) / csy;
+            total += curR2 / (crx * crx + cry * cry || 1);
+          }
         }
 
         for (let i = 0; i < n; i++){
           const r2 = nodeR2[i];
           if (!r2) continue;
           const ndx = px - srcX[i], ndy = py - srcY[i];
-          const c = r2 / (ndx * ndx + ndy * ndy || 1);
-          total += c;
-          if (c > best){ best = c; dom = i; }
+          total += r2 / (ndx * ndx + ndy * ndy || 1);
         }
 
         let a = 0, band = 0;
@@ -1595,7 +1632,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         if (a === 0) continue;
         band -= 1;
 
-        const rgb = dom < 0 ? CUR_RAMP[band] : HEAT_RAMP[dom % HEAT_RAMP.length][band];
+        const rgb = RAMP[band];
         const idx = (cy * cw + cx) * 4;
         buf[idx]     = rgb[0];
         buf[idx + 1] = rgb[1];
