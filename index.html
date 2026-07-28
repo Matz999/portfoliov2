@@ -141,14 +141,27 @@
     stroke:var(--accent);
     stroke-width:2.6;
   }
-  /* Hover spotlight: thin red curves drawn from every other node to the hovered one */
-  .node-graph .hover-link{
-    stroke:var(--accent);
-    stroke-width:1.2;
-    fill:none;
-    opacity:.55;
+  /* Hover spotlight: heatmap canvas under the graph — drawn at 1px per cell and
+     upscaled with normal smoothing, so the quantised field reads as clean bands
+     rather than blocks (intensity is driven in JS) */
+  .node-graph .hover-glow{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
     pointer-events:none;
+    z-index:0;
   }
+  /* Contour lines traced along every band edge, drawn crisp at full resolution */
+  .node-graph .hover-lines{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    pointer-events:none;
+    z-index:0;
+  }
+  .node-graph svg{position:relative;z-index:1}
   .node-graph .node{cursor:pointer}
   .node-graph .node-circle{
     fill:#fff;
@@ -225,6 +238,8 @@
     color:var(--ink);
     border-top:1px solid var(--line);
   }
+  /* No clip above it → nothing to divide */
+  .node-image .title:first-child{border-top:none}
   .node-image .title .num{
     font-family:var(--mono);
     font-size:9px;
@@ -262,7 +277,7 @@
       #3a0606 50%,
       #111111 58%,
       #3a0606 66%,
-      #8B1010 76%,
+      #8b1010 76%,
       #c84040 86%,
       #f5d0d0 94%,
       #ffffff 100%
@@ -663,7 +678,7 @@
     <h1 class="reveal">
       Me gusta <br>
       <em>diseñar</em><br>
-      y desarrollar cosas que funcionen bien<span class="dot-end">.</span>
+      y <em>desarrollar</em>  cosas que funcionen bien<span class="dot-end">.</span>
     </h1>
     <div class="node-graph" id="nodeGraph">
       <svg id="nodeGraphSvg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet"></svg>
@@ -1186,6 +1201,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
   const SVG_NS = 'http://www.w3.org/2000/svg';
   const W = 1200, H = 900;
+  const ACCENT = getComputedStyle(document.documentElement)
+    .getPropertyValue('--accent').trim() || '#8B1010';
 
   // 7 nodes — los ejes que realmente definen el perfil
   const nodes = [
@@ -1283,24 +1300,341 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     return g;
   });
 
-  // Hover spotlight: thin red curves from every other node to the hovered one
-  let hoverLines = [];
-  function clearHoverLines(){
-    hoverLines.forEach(({el}) => el.remove());
-    hoverLines = [];
+  // ── Hover heat field ───────────────────────────────────────────────────────
+  // A heatmap painted on a canvas under the graph. Every node is an inverse-square
+  // heat source; the hovered one gets a much bigger source that springs toward it
+  // and stretches along its direction of travel, and the nodes it actually links
+  // to burn hotter than the rest. Once the graph has been touched once, a further
+  // source trails the cursor. The summed field is quantised into a handful of flat
+  // alpha steps, so the falloff lands as banded contours rather than a smooth ramp.
+  const CELL   = 2.5;    // px per heat cell — small enough that the bands read clean
+  // Source radii in viewBox units — scaled to px in measureGlow so the field keeps
+  // its proportions against the graph at any viewport size
+  const R_HOT_VB  = 210;  // the hovered node's source
+  const R_LINK_VB = 110;  // nodes linked to it
+  const R_REST_VB = 56;   // everything else
+  const R_CUR_VB  = 150;  // the one trailing the cursor
+  let R_HOT = R_HOT_VB, R_LINK = R_LINK_VB, R_REST = R_REST_VB,
+      R_CUR = R_CUR_VB, VEL_REF = 19;
+  // field threshold → the flat alpha that band holds
+  const STEPS = [
+    [26,   1],     // solid core — every source burns to full colour at its centre
+    [10,   .78],
+    [5,    .56],
+    [2.6,  .38],
+    [1.3,  .23],
+    [0.55, .125],
+    [0.3,  .055],
+  ];
+  // One tint per source, all derived from --accent: the accent's own hue, spread
+  // across saturation and lightness so each source still reads as its own sensor
+  // without leaving the palette. Change the token and the whole field follows.
+  function hslRgb(h, s, l){
+    const t = (((h % 360) + 360) % 360) / 360;
+    const a = s * Math.min(l, 1 - l);
+    const f = (n) => {
+      const k = (n + t * 12) % 12;
+      return Math.round(255 * (l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))));
+    };
+    return [f(0), f(8), f(4)];
   }
-  function addHoverLines(idx){
-    clearHoverLines();
-    nodes.forEach((n, i) => {
-      if (i === idx) return;
-      const p = document.createElementNS(SVG_NS, 'path');
-      p.classList.add('hover-link');
-      // Alternate sides for visual variety
-      const side = (i + idx) % 2 === 0 ? 1 : -1;
-      p.setAttribute('d', getCurve(n.x, n.y, nodes[idx].x, nodes[idx].y, side, 0.12));
-      svg.insertBefore(p, nodeEls[0]); // render behind nodes
-      hoverLines.push({el: p, from: i, to: idx, side});
+  const ACC_H = (() => {
+    const m = /^#?([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i.exec(ACCENT);
+    if (!m) return 0;
+    const [r, g, b] = m.slice(1).map(v => parseInt(v, 16) / 255);
+    const max = Math.max(r, g, b), d = max - Math.min(r, g, b);
+    if (!d) return 0;
+    const h = max === r ? ((g - b) / d) % 6
+            : max === g ? (b - r) / d + 2
+            :             (r - g) / d + 4;
+    return h * 60;
+  })();
+  const SRC_HSL = [
+    [ 0, .79, .30],   // the accent itself
+    [ 4, .86, .38],
+    [-3, .74, .23],
+    [ 2, .90, .45],
+    [-5, .82, .33],
+    [ 6, .88, .35],
+    [ 0, .72, .20],
+  ];
+  const CUR_HSL = [0, .79, .30];   // the cursor source is the accent, exactly
+  // A band's colour depends on how deep in the field it sits, not just on its
+  // alpha: the core keeps the accent's own depth, and the further out a band is
+  // the more saturated and lighter it gets. Chroma after compositing is alpha ×
+  // the colour's own chroma, so a dark red at 5% opacity greys out against the
+  // page while a pure one still reads red — the outer bands need the lift.
+  const rampFor = ([dh, s, l]) => STEPS.map((_, i) => {
+    const t = STEPS.length > 1 ? i / (STEPS.length - 1) : 0;
+    return hslRgb(ACC_H + dh, s + (1 - s) * t, l + (.5 - l) * t);
+  });
+  const HEAT_RAMP = SRC_HSL.map(rampFor);
+  const CUR_RAMP  = rampFor(CUR_HSL);
+
+  const neighbours = nodes.map(() => new Set());
+  links.forEach(([a,b]) => { neighbours[a].add(b); neighbours[b].add(a); });
+
+  const glowEl = document.createElement('canvas');
+  glowEl.className = 'hover-glow';
+  glowEl.setAttribute('aria-hidden', 'true');
+  graphEl.insertBefore(glowEl, graphEl.firstChild);
+  const gctx = glowEl.getContext('2d');
+
+  // Second canvas, at full resolution, for the band outlines. The field itself
+  // stays low-res and smoothly upscaled; only the lines need real pixels.
+  const lineEl = document.createElement('canvas');
+  lineEl.className = 'hover-lines';
+  lineEl.setAttribute('aria-hidden', 'true');
+  graphEl.insertBefore(lineEl, glowEl.nextSibling);
+  const lctx = lineEl.getContext('2d');
+  const INK = getComputedStyle(document.documentElement)
+    .getPropertyValue('--ink').trim() || '#111';
+
+  let cw = 0, ch = 0, heatImg = null, bandMap = null;
+  let boxW = 0, boxH = 0;   // canvas box in CSS px
+  let srcX = [], srcY = [];    // node centres in graph-local px
+  let hotX = 0, hotY = 0;      // spring position of the hot source
+  let hotTX = 0, hotTY = 0;    // where it wants to be
+  let hotVX = 0, hotVY = 0;    // spring velocity
+  let bloom = 1;               // radius multiplier — blooms open on arrival
+  let heat = 0, heatTarget = 0;    // 0..1 — whether the field is alive at all
+  let focus = 0, focusTarget = 0;  // 0..1 — how much a node is being singled out
+  let glowIdx = -1;            // last hovered node (kept through the fade-out)
+  let painted = false;
+  const SPRING = .075, DAMP = .80;
+
+  // Cursor source — armed by the first node hover, then it trails the pointer
+  let armed = false, curSeen = false;
+  let ptrCX = 0, ptrCY = 0;    // last pointer position, viewport coords
+  let curX = 0, curY = 0, curVX = 0, curVY = 0;
+  const CUR_SPRING = .11, CUR_DAMP = .78;
+
+  function measureGlow(){
+    const gr = graphEl.getBoundingClientRect();
+    if (!gr.width || !gr.height) return;
+    const nw = Math.max(1, Math.ceil(gr.width  / CELL));
+    const nh = Math.max(1, Math.ceil(gr.height / CELL));
+    if (nw !== cw || nh !== ch || !heatImg){
+      cw = nw; ch = nh;
+      glowEl.width  = cw;   // resizing the canvas also clears it
+      glowEl.height = ch;
+      heatImg = gctx.createImageData(cw, ch);
+      bandMap = new Uint8Array(cw * ch);
+      painted = false;
+    }
+    if (gr.width !== boxW || gr.height !== boxH){
+      boxW = gr.width; boxH = gr.height;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      lineEl.width  = Math.round(boxW * dpr);
+      lineEl.height = Math.round(boxH * dpr);
+      lctx.setTransform(dpr, 0, 0, dpr, 0, 0);   // draw in CSS px
+    }
+    // preserveAspectRatio="meet" → the SVG scales by whichever axis binds first
+    const sr = svg.getBoundingClientRect();
+    const vbScale = Math.min(sr.width / W, sr.height / H) || 1;
+    R_HOT  = R_HOT_VB  * vbScale;
+    R_LINK = R_LINK_VB * vbScale;
+    R_REST = R_REST_VB * vbScale;
+    R_CUR  = R_CUR_VB  * vbScale;
+    VEL_REF = 30 * vbScale;   // px/frame at which the stretch maxes out
+    srcX = []; srcY = [];
+    nodeEls.forEach(el => {
+      const r = el.querySelector('.node-circle').getBoundingClientRect();
+      srcX.push(r.left + r.width  / 2 - gr.left);
+      srcY.push(r.top  + r.height / 2 - gr.top);
     });
+  }
+  measureGlow();
+  window.addEventListener('resize', measureGlow);
+
+  // Once armed, the field stays alive for as long as the pointer is in the hero —
+  // the cursor source is what keeps it lit between nodes.
+  const heroEl = graphEl.closest('section') || graphEl;
+  heroEl.addEventListener('pointermove', (e) => {
+    ptrCX = e.clientX; ptrCY = e.clientY;
+    if (armed) heatTarget = 1;
+  });
+  heroEl.addEventListener('pointerleave', () => { heatTarget = 0; focusTarget = 0; });
+
+  function setGlowTarget(i){
+    if (i < 0){
+      // Leaving a node only releases the focus; the cursor source carries on
+      focusTarget = 0;
+      if (!armed) heatTarget = 0;
+      return;
+    }
+    // Re-measure on entry: the hero settles after init (fonts, images, scroll),
+    // so positions taken at load time can be stale by the first hover.
+    measureGlow();
+    glowIdx = i;
+    hotTX = srcX[i];
+    hotTY = srcY[i];
+    if (focusTarget === 0){
+      // Fresh focus: land on the node and bloom open instead of sliding in
+      hotX = hotTX; hotY = hotTY;
+      hotVX = hotVY = 0;
+      bloom = .45;
+    }
+    focusTarget = 1;
+    heatTarget  = 1;
+    armed = true;
+  }
+
+  function updateGlow(now){
+    heat  += (heatTarget  - heat)  * .09;
+    focus += (focusTarget - focus) * .10;
+    if (heat < .004 && heatTarget === 0){
+      if (painted){
+        gctx.clearRect(0, 0, cw, ch);
+        lctx.clearRect(0, 0, boxW, boxH);
+        painted = false;
+      }
+      return;
+    }
+    if (!heatImg) { measureGlow(); if (!heatImg) return; }
+
+    // Spring toward the node — the slight overshoot is what reads as liquid
+    hotVX = (hotVX + (hotTX - hotX) * SPRING) * DAMP;
+    hotVY = (hotVY + (hotTY - hotY) * SPRING) * DAMP;
+    hotX += hotVX;
+    hotY += hotVY;
+    bloom += (1 - bloom) * .12;
+
+    // Stretch along the direction of travel, squash across it
+    const speed = Math.hypot(hotVX, hotVY);
+    const k  = Math.min(speed / VEL_REF, 1);
+    const sx = 1 + k * .55;
+    const sy = 1 - k * .25;
+    const ang = Math.atan2(hotVY, hotVX);
+    const ca = Math.cos(ang), sa = Math.sin(ang);
+
+    // Cursor source — its own, looser spring, so it lags the pointer and smears
+    // in the direction it is being dragged. Read the rect live: it moves on scroll.
+    const gr = graphEl.getBoundingClientRect();
+    const curTX = ptrCX - gr.left;
+    const curTY = ptrCY - gr.top;
+    if (!curSeen && armed){ curX = curTX; curY = curTY; curSeen = true; }
+    curVX = (curVX + (curTX - curX) * CUR_SPRING) * CUR_DAMP;
+    curVY = (curVY + (curTY - curY) * CUR_SPRING) * CUR_DAMP;
+    curX += curVX;
+    curY += curVY;
+    const ck  = Math.min(Math.hypot(curVX, curVY) / VEL_REF, 1);
+    const csx = 1 + ck * .6;
+    const csy = 1 - ck * .28;
+    const cang = Math.atan2(curVY, curVX);
+    const cca = Math.cos(cang), csa = Math.sin(cang);
+
+    const hotR2 = (R_HOT * bloom) * (R_HOT * bloom) * heat * focus;
+    const curR2 = curSeen ? R_CUR * R_CUR * heat : 0;
+    const wobT  = now * .0009;
+    const wobC = Math.cos(wobT), wobS = Math.sin(wobT);
+    // Per-node source strength: the focused node's heat comes from the hot source,
+    // the ones it links to warm up, everything else idles — all of it easing with
+    // `focus`, so releasing a node settles the field back to an even simmer.
+    const nodeR2 = srcX.map((_, i) => {
+      let r;
+      if (i === glowIdx)                            r = R_REST * (1 - focus);
+      else if (glowIdx >= 0 && neighbours[glowIdx].has(i))
+                                                    r = R_REST + (R_LINK - R_REST) * focus;
+      else                                          r = R_REST;
+      return r * r * heat;
+    });
+
+    const buf = heatImg.data;
+    buf.fill(0);
+    const n = srcX.length;
+
+    for (let cy = 0; cy < ch; cy++){
+      const py = (cy + .5) * CELL;
+      for (let cx = 0; cx < cw; cx++){
+        const px = (cx + .5) * CELL;
+
+        let total = 0, best = 0;
+        let dom = glowIdx < 0 ? 0 : glowIdx;
+
+        // Hot source, measured in its own stretched frame
+        if (hotR2){
+          const dx = px - hotX, dy = py - hotY;
+          const rx = ( dx * ca + dy * sa) / sx;
+          const ry = (-dx * sa + dy * ca) / sy;
+          const hd2 = rx * rx + ry * ry || 1;
+          // Low-frequency angular wobble so the contours undulate instead of ringing.
+          // sin(3θ + t) expanded from sin/cos θ — one sqrt beats an atan2 per pixel.
+          const inv = 1 / Math.sqrt(hd2);
+          const s = ry * inv, c = rx * inv;
+          const s3 = s * (3 - 4 * s * s);
+          const c3 = c * (4 * c * c - 3);
+          total = hotR2 / hd2 * (1 + .12 * (s3 * wobC + c3 * wobS));
+          best  = total;
+        }
+
+        // Cursor source, in its own stretched frame
+        if (curR2){
+          const cdx = px - curX, cdy = py - curY;
+          const crx = ( cdx * cca + cdy * csa) / csx;
+          const cry = (-cdx * csa + cdy * cca) / csy;
+          const c = curR2 / (crx * crx + cry * cry || 1);
+          total += c;
+          if (c > best){ best = c; dom = -1; }
+        }
+
+        for (let i = 0; i < n; i++){
+          const r2 = nodeR2[i];
+          if (!r2) continue;
+          const ndx = px - srcX[i], ndy = py - srcY[i];
+          const c = r2 / (ndx * ndx + ndy * ndy || 1);
+          total += c;
+          if (c > best){ best = c; dom = i; }
+        }
+
+        let a = 0, band = 0;
+        for (let s = 0; s < STEPS.length; s++){
+          if (total >= STEPS[s][0]){ a = STEPS[s][1]; band = s + 1; break; }
+        }
+        bandMap[cy * cw + cx] = band;   // 0 = outside the field
+        if (a === 0) continue;
+        band -= 1;
+
+        const rgb = dom < 0 ? CUR_RAMP[band] : HEAT_RAMP[dom % HEAT_RAMP.length][band];
+        const idx = (cy * cw + cx) * 4;
+        buf[idx]     = rgb[0];
+        buf[idx + 1] = rgb[1];
+        buf[idx + 2] = rgb[2];
+        buf[idx + 3] = Math.max(0, Math.min(255, a * 255));
+      }
+    }
+
+    gctx.putImageData(heatImg, 0, 0);
+
+    // Trace a 1px line along every edge where the band index changes — the outer
+    // edge of the field included. Cell size is derived from the box rather than
+    // CELL, so the lines land exactly on the seams of the upscaled fill.
+    const stepX = boxW / cw, stepY = boxH / ch;
+    lctx.clearRect(0, 0, boxW, boxH);
+    lctx.beginPath();
+    for (let cy = 0; cy < ch; cy++){
+      const row = cy * cw;
+      for (let cx = 0; cx < cw; cx++){
+        const b = bandMap[row + cx];
+        if (cx + 1 < cw && bandMap[row + cx + 1] !== b){
+          const x = Math.round((cx + 1) * stepX) + .5;
+          lctx.moveTo(x, cy * stepY);
+          lctx.lineTo(x, (cy + 1) * stepY);
+        }
+        if (cy + 1 < ch && bandMap[row + cw + cx] !== b){
+          const y = Math.round((cy + 1) * stepY) + .5;
+          lctx.moveTo(cx * stepX, y);
+          lctx.lineTo((cx + 1) * stepX, y);
+        }
+      }
+    }
+    lctx.globalAlpha = Math.min(1, heat);   // lines come up with the field
+    lctx.strokeStyle = INK;
+    lctx.lineWidth = 1;
+    lctx.stroke();
+    lctx.globalAlpha = 1;
+
+    painted = true;
   }
 
   // Static render — no floating, nodes sit on the grid
@@ -1312,12 +1646,18 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       getCurve(nodes[a].x, nodes[a].y, nodes[b].x, nodes[b].y, linkSides[i]));
   });
 
+  // Temporarily off: the hover card shows title + description only, no clip.
+  // Flip back to true to bring the hero-animation snippets back.
+  const SHOW_CLIPS = false;
+
   // Preload video metadata (light — just headers, no full download)
-  nodes.forEach(n => {
-    const v = document.createElement('video');
-    v.preload = 'metadata';
-    v.src = n.video;
-  });
+  if (SHOW_CLIPS){
+    nodes.forEach(n => {
+      const v = document.createElement('video');
+      v.preload = 'metadata';
+      v.src = n.video;
+    });
+  }
 
   // Hover → show small image near node; leave → hide
   let activeIdx = -1;
@@ -1326,7 +1666,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   function shouldFlipBelow(nodeRect){
     // Popup card is ~260px tall. Header is ~90px. If the node is close to
     // the top of the viewport, put the card BELOW instead of above.
-    const POPUP_HEIGHT = 260;
+    const POPUP_HEIGHT = SHOW_CLIPS ? 260 : 100;
     const HEADER_H     = 90;
     return nodeRect.top - HEADER_H < POPUP_HEIGHT + 24;
   }
@@ -1352,9 +1692,11 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     popupEl = document.createElement('div');
     popupEl.className = 'node-image' + (flip ? ' below' : '');
     popupEl.innerHTML =
-      `<div class="img-wrap">` +
-        `<video src="${n.video}" autoplay loop muted playsinline preload="metadata" aria-label="${n.interest}"></video>` +
-      `</div>` +
+      (SHOW_CLIPS
+        ? `<div class="img-wrap">` +
+            `<video src="${n.video}" autoplay loop muted playsinline preload="metadata" aria-label="${n.interest}"></video>` +
+          `</div>`
+        : '') +
       `<div class="title"><span class="num">${n.label}</span>${n.interest}</div>` +
       `<div class="desc">${n.desc}</div>`;
     popupEl.style.left = x + 'px';
@@ -1381,7 +1723,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   }
 
   // Track popup to node position each frame (so it follows the floating motion)
-  function trackPopup(){
+  function trackPopup(now){
     if (popupEl && popupEl._idx >= 0){
       const i = popupEl._idx;
       const nodeRect  = nodeEls[i].getBoundingClientRect();
@@ -1394,18 +1736,19 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       const flip = shouldFlipBelow(nodeRect);
       popupEl.classList.toggle('below', flip);
     }
+    updateGlow(now || performance.now());
     requestAnimationFrame(trackPopup);
   }
   trackPopup();
 
-  // Hover in → show image + hover-lines; leave → hide both
+  // Hover in → show image + glow; leave → hide both
   nodeEls.forEach((el, i) => {
     el.addEventListener('pointerenter', () => {
-      addHoverLines(i);
+      setGlowTarget(i);
       showImage(i);
     });
     el.addEventListener('pointerleave', () => {
-      clearHoverLines();
+      setGlowTarget(-1);
       hideImage();
     });
   });
