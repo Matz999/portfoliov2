@@ -140,10 +140,10 @@
     stroke:var(--accent);
     stroke-width:2.6;
   }
-  /* Hover spotlight: heatmap canvas under the graph — drawn at 1px per cell and
-     upscaled with normal smoothing, so the quantised field reads as clean bands
-     rather than blocks (intensity is driven in JS) */
-  .node-graph .hover-glow{
+  /* Hover spotlight: heatmap canvas spanning the whole hero — drawn at 1px per
+     cell and upscaled with normal smoothing, so the quantised field reads as
+     clean bands rather than blocks (intensity is driven in JS) */
+  .hero .hover-glow{
     position:absolute;
     inset:0;
     width:100%;
@@ -152,7 +152,7 @@
     z-index:0;
   }
   /* Contour lines traced along every band edge, drawn crisp at full resolution */
-  .node-graph .hover-lines{
+  .hero .hover-lines{
     position:absolute;
     inset:0;
     width:100%;
@@ -378,40 +378,134 @@
     max-width:46ch;
   }
   .about-body p+p{margin-top:16px}
-  .about-actions{
+  /* --- Approach desk: draggable icon stickers --- */
+  .desk{
     grid-column:8/13;
-    margin-top:28px;
+    margin-top:30px;
+    position:relative;
     display:flex;
-    gap:10px;
     flex-wrap:wrap;
+    gap:6px 4px;
+    touch-action:none;
   }
-  .about-btn{
-    display:inline-flex;
+  /* Once measured, the icons go absolute so dragging never reflows the others */
+  .desk.placed{display:block}
+  .desk.placed .desk-icon{position:absolute;margin:0}
+  .desk-icon{
+    width:88px;
+    padding:9px 4px 7px;
+    display:flex;
+    flex-direction:column;
     align-items:center;
-    padding:11px 22px;
-    font-family:inherit;
-    font-size:14px;
-    font-weight:500;
-    letter-spacing:.01em;
-    background:#fff;
-    color:#111;
-    border:1px solid #fff;
-    border-radius:999px;
+    gap:8px;
+    background:none;
+    border:0;
+    border-radius:12px;
+    color:inherit;
+    font:inherit;
     text-decoration:none;
-    transition:background .25s ease, color .25s ease, border-color .25s ease;
+    cursor:grab;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;
+    -webkit-tap-highlight-color:transparent;
+    transition:transform .22s cubic-bezier(.2,.9,.3,1.2), background-color .2s ease;
   }
-  .about-btn:hover{
-    background:#000;
-    color:#fff;
-    border-color:#000;
+  .desk-icon:hover{transform:translateY(-3px)}
+  .desk-icon:focus-visible{outline:2px solid var(--aa, var(--accent));outline-offset:2px}
+  .desk-icon.dragging{cursor:grabbing;transform:scale(1.06);z-index:20;transition:none}
+  .desk-icon .glyph{
+    width:56px;height:56px;display:block;pointer-events:none;
+    filter:drop-shadow(0 7px 12px rgba(0,0,0,.25));
   }
-  .about-btn.icon{padding:11px 16px}
-  .about-btn svg{
-    width:18px;
-    height:18px;
-    display:block;
-    fill:currentColor;
-    transition:fill .25s ease;
+  .desk-icon .label{
+    font-family:var(--sans);
+    font-size:11.5px;
+    line-height:1.2;
+    letter-spacing:.01em;
+    text-align:center;
+    color:var(--at, var(--ink));
+    padding:2px 6px;
+    border-radius:5px;
+    pointer-events:none;
+  }
+  .desk-icon.open .label{background:var(--aa, var(--accent));color:#fff}
+  /* Dock-style bounce when an icon is activated */
+  @keyframes desk-pop{
+    0%  {transform:translateY(0)    scale(1)}
+    28% {transform:translateY(-11px) scale(1.09)}
+    58% {transform:translateY(0)    scale(.96)}
+    100%{transform:translateY(0)    scale(1)}
+  }
+  .desk-icon.pop{animation:desk-pop .46s cubic-bezier(.2,.9,.3,1.2)}
+
+  /* --- Desk windows --- */
+  .win-backdrop{
+    position:fixed;inset:0;z-index:200;
+    background:rgba(20,10,10,.16);
+    opacity:0;transition:opacity .25s ease;
+  }
+  .win-backdrop.show{opacity:1}
+  .win{
+    position:fixed;left:50%;top:50%;z-index:210;
+    width:min(92vw, 460px);
+    max-height:min(78vh, 560px);
+    display:flex;flex-direction:column;overflow:hidden;
+    background:rgba(250,250,250,.82);
+    -webkit-backdrop-filter:blur(26px) saturate(180%);
+    backdrop-filter:blur(26px) saturate(180%);
+    border:.5px solid rgba(0,0,0,.18);
+    border-radius:14px;
+    box-shadow:0 28px 64px -14px rgba(0,0,0,.4), 0 2px 10px rgba(0,0,0,.14);
+    color:#111;
+    font-family:var(--sans);
+    transform:translate(-50%,-50%) scale(.84);
+    opacity:0;
+    transition:transform .3s cubic-bezier(.2,1.06,.3,1), opacity .2s ease;
+  }
+  .win.show{transform:translate(-50%,-50%) scale(1);opacity:1}
+  .win-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:11px 13px;
+    border-bottom:.5px solid rgba(0,0,0,.13);
+    background:rgba(255,255,255,.55);
+    flex:none;
+  }
+  .win-dot{
+    width:12px;height:12px;border-radius:50%;padding:0;
+    border:.5px solid rgba(0,0,0,.14);
+  }
+  button.win-dot{cursor:pointer}
+  .win-dot.r{background:#FF5F57}
+  .win-dot.y{background:#FEBC2E}
+  .win-dot.g{background:#28C840}
+  .win-title{
+    flex:1;text-align:center;margin-right:52px;
+    font-size:12.5px;font-weight:600;letter-spacing:.01em;color:#3c3c3f;
+  }
+  .win-body{padding:18px;overflow:auto;-webkit-overflow-scrolling:touch}
+  .win-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}
+  .win-item{
+    display:flex;flex-direction:column;align-items:center;gap:7px;
+    padding:12px 4px;border-radius:10px;
+    text-decoration:none;color:#111;font-size:11.5px;text-align:center;
+    transition:background .18s ease;
+  }
+  .win-item:hover{background:rgba(0,0,0,.06)}
+  .win-item svg{width:42px;height:42px;filter:drop-shadow(0 4px 7px rgba(0,0,0,.18))}
+  .note-head{
+    font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.01em;
+    margin-bottom:4px;
+  }
+  .note-date{
+    font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    color:#8a8a8e;margin-bottom:14px;
+  }
+  .note-list{list-style:none;display:grid;gap:11px}
+  .note-list li{display:flex;gap:11px;font-size:14.5px;line-height:1.55;color:#2a2a2a}
+  .note-list .n{
+    font-family:var(--mono);font-size:10.5px;color:var(--accent);
+    padding-top:4px;flex:none;
   }
   .about-body .lead{
     font-family:var(--display);
@@ -584,7 +678,7 @@
     .nav-links{gap:20px}
     .hero{padding-top:100px;min-height:100svh}
     .about-grid{grid-template-columns:1fr;gap:32px}
-    .about-title,.about-body,.about-actions{grid-column:1/-1}
+    .about-title,.about-body,.desk{grid-column:1/-1}
     #services{padding-top:80px;padding-bottom:100px}
     .services{min-height:auto;display:flex;flex-direction:column;gap:24px;align-items:center}
     .service{position:static;width:min(340px,90%);padding:24px 22px}
@@ -679,7 +773,7 @@
     <h1 class="reveal">
       Me gusta <br>
       <em>diseñar</em><br>
-      y <em>desarrollar</em>  cosas que funcionen bien<span class="dot-end">.</span>
+      y <em>desarrollar</em>  cosas que funcionan bien<span class="dot-end">.</span>
     </h1>
     <div class="node-graph" id="nodeGraph">
       <svg id="nodeGraphSvg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet"></svg>
@@ -735,10 +829,68 @@
         <p>La aspiración marca el rumbo; la transpiración lo recorre. Hoy el rumbo es front-end con criterio de diseño: React, JavaScript, tipografía, sistemas visuales. Y cuando el problema lo exige, bajo al detalle sin ruido: lógica, datos, matemática.</p>
         <p>El diseño no es decoración: es la forma que toma el respeto por el que está del otro lado de la pantalla.</p>
       </div>
-      <div class="about-actions reveal d2">
-        <a class="about-btn" href="cv.pdf" target="_blank" rel="noopener" download>CV</a>
-        <a class="about-btn icon" href="https://github.com/Matz999" target="_blank" rel="noopener" aria-label="GitHub">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 .296C5.371.296 0 5.667 0 12.296c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577 0-.286-.011-1.244-.017-2.256-3.338.725-4.042-1.416-4.042-1.416-.546-1.388-1.333-1.758-1.333-1.758-1.089-.744.083-.729.083-.729 1.205.085 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.605-2.665-.303-5.466-1.333-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23a11.51 11.51 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.119 3.176.769.84 1.235 1.911 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921.43.371.815 1.104.815 2.226 0 1.606-.014 2.901-.014 3.293 0 .319.192.694.801.576C20.566 22.092 24 17.594 24 12.296 24 5.667 18.629.296 12 .296z"/></svg>
+      <!-- Desk: draggable icon stickers. Drag them anywhere; click to open. -->
+      <div class="desk reveal d2" id="desk">
+        <button class="desk-icon" type="button" data-open="folder" aria-label="Abrir carpeta">
+          <svg class="glyph" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient id="fdBack" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#C9564F"/><stop offset="1" stop-color="#A32C26"/>
+              </linearGradient>
+              <linearGradient id="fdFront" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#F0837B"/><stop offset="1" stop-color="#C0453D"/>
+              </linearGradient>
+            </defs>
+            <path d="M5 17a5 5 0 0 1 5-5h13.6a5 5 0 0 1 3.5 1.5l3.4 3.4A5 5 0 0 0 34 18.4h20a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="url(#fdBack)"/>
+            <path d="M5 25.5a5 5 0 0 1 5-5h44a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="url(#fdFront)"/>
+            <path d="M5 25.5a5 5 0 0 1 5-5h44a5 5 0 0 1 5 5v1.6H5z" fill="#fff" opacity=".25"/>
+          </svg>
+          <span class="label">Carpeta</span>
+        </button>
+
+        <button class="desk-icon" type="button" data-open="note" aria-label="Abrir nota">
+          <svg class="glyph" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient id="ntPaper" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#EFE7DA"/>
+              </linearGradient>
+            </defs>
+            <rect x="9" y="6" width="46" height="52" rx="8" fill="url(#ntPaper)" stroke="rgba(0,0,0,.16)" stroke-width="1"/>
+            <rect x="9" y="6" width="46" height="11" rx="8" fill="#F2C14E"/>
+            <rect x="9" y="14" width="46" height="3" fill="#F2C14E"/>
+            <g stroke="#B9AFA0" stroke-width="2.4" stroke-linecap="round">
+              <path d="M17 27h30"/><path d="M17 35h30"/><path d="M17 43h20"/>
+            </g>
+          </svg>
+          <span class="label">Nota</span>
+        </button>
+
+        <a class="desk-icon" href="cv.pdf" target="_blank" rel="noopener" download data-pop draggable="false" aria-label="Descargar CV">
+          <svg class="glyph" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient id="cvDoc" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#E9E9EC"/>
+              </linearGradient>
+            </defs>
+            <path d="M14 10a6 6 0 0 1 6-6h18l14 14v36a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z" fill="url(#cvDoc)" stroke="rgba(0,0,0,.16)" stroke-width="1"/>
+            <path d="M38 4l14 14H42a4 4 0 0 1-4-4z" fill="#D4D4D8"/>
+            <rect x="14" y="34" width="30" height="15" rx="3.5" fill="#8B1010"/>
+            <text x="29" y="45.4" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#fff">PDF</text>
+          </svg>
+          <span class="label">CV</span>
+        </a>
+
+        <a class="desk-icon" href="https://github.com/Matz999" target="_blank" rel="noopener" data-pop draggable="false" aria-label="GitHub">
+          <svg class="glyph" viewBox="0 0 64 64" aria-hidden="true">
+            <defs>
+              <linearGradient id="ghTile" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#3B3B40"/><stop offset="1" stop-color="#141417"/>
+              </linearGradient>
+            </defs>
+            <rect x="6" y="6" width="52" height="52" rx="13" fill="url(#ghTile)"/>
+            <path transform="translate(15 15) scale(1.42)" fill="#fff" d="M12 .296C5.371.296 0 5.667 0 12.296c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577 0-.286-.011-1.244-.017-2.256-3.338.725-4.042-1.416-4.042-1.416-.546-1.388-1.333-1.758-1.333-1.758-1.089-.744.083-.729.083-.729 1.205.085 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.605-2.665-.303-5.466-1.333-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23a11.51 11.51 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.119 3.176.769.84 1.235 1.911 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921.43.371.815 1.104.815 2.226 0 1.606-.014 2.901-.014 3.293 0 .319.192.694.801.576C20.566 22.092 24 17.594 24 12.296 24 5.667 18.629.296 12 .296z"/>
+          </svg>
+          <span class="label">GitHub</span>
         </a>
       </div>
     </div>
@@ -1321,10 +1473,18 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const R_CUR_VB  = 150;  // the one trailing the cursor
   // Node sources shrink with their distance from the cursor: at PROX_D_VB away a
   // source is roughly half size, and it keeps shrinking toward PROX_MIN from there
-  const PROX_D_VB = 280;
-  const PROX_MIN  = .06;
+  const PROX_D_VB = 200;
+  const PROX_MIN  = .09;
+  // The cursor source answers to the same idea in reverse: it is full size on a
+  // node and shrinks away as it strays from the graph, gone once it is well clear
+  const CUR_PROX_D_VB = 240;
+  const CUR_R_MIN     = .45;   // how far its radius shrinks before the fade finishes it
+  // …and the headline pushes it away: half faded this far from a line of type,
+  // out entirely once it is on top of it
+  const TEXT_FADE_D_VB = 170;
   let R_HOT = R_HOT_VB, R_LINK = R_LINK_VB, R_REST = R_REST_VB,
-      R_CUR = R_CUR_VB, PROX_D = PROX_D_VB, VEL_REF = 19;
+      R_CUR = R_CUR_VB, PROX_D = PROX_D_VB, CUR_PROX_D = CUR_PROX_D_VB,
+      TEXT_FADE_D = TEXT_FADE_D_VB, VEL_REF = 19;
   // field threshold → the flat alpha that band holds
   const STEPS = [
     [26,   1],     // solid core — every source burns to full colour at its centre
@@ -1372,14 +1532,33 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     return hslRgb(ACC_H + dh, s + (1 - s) * t, l + (.5 - l) * t);
   });
   const RAMP = rampFor(BASE_HSL);
+  // The cursor source sits at the accent on its own, and only warms to the field's
+  // working colour as a node takes focus. Rebuilt each frame from `focus`, in
+  // place, so the crossfade costs one lerp per band rather than an allocation.
+  const ACCENT_HSL = [0, .79, .30];   // --accent, exactly
+  const ACC_RAMP   = rampFor(ACCENT_HSL);
+  const CUR_RAMP   = RAMP.map(() => [0, 0, 0]);
+  function blendCurRamp(t){
+    for (let i = 0; i < CUR_RAMP.length; i++){
+      const a = ACC_RAMP[i], b = RAMP[i], c = CUR_RAMP[i];
+      c[0] = a[0] + (b[0] - a[0]) * t;
+      c[1] = a[1] + (b[1] - a[1]) * t;
+      c[2] = a[2] + (b[2] - a[2]) * t;
+    }
+  }
 
   const neighbours = nodes.map(() => new Set());
   links.forEach(([a,b]) => { neighbours[a].add(b); neighbours[b].add(a); });
 
+  // The field spans the whole hero, not just the graph column. Everything below
+  // measures against this box; node positions are still read from the SVG, so
+  // the graph itself keeps its size and place — only the canvas grew.
+  const fieldEl = graphEl.closest('section') || graphEl;
+
   const glowEl = document.createElement('canvas');
   glowEl.className = 'hover-glow';
   glowEl.setAttribute('aria-hidden', 'true');
-  graphEl.insertBefore(glowEl, graphEl.firstChild);
+  fieldEl.insertBefore(glowEl, fieldEl.firstChild);
   const gctx = glowEl.getContext('2d');
 
   // Second canvas, at full resolution, for the band outlines. The field itself
@@ -1387,15 +1566,21 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const lineEl = document.createElement('canvas');
   lineEl.className = 'hover-lines';
   lineEl.setAttribute('aria-hidden', 'true');
-  graphEl.insertBefore(lineEl, glowEl.nextSibling);
+  fieldEl.insertBefore(lineEl, glowEl.nextSibling);
   const lctx = lineEl.getContext('2d');
   const INK = getComputedStyle(document.documentElement)
     .getPropertyValue('--ink').trim() || '#111';
 
+  // The headline repels the cursor source: the closer the source gets to the
+  // type, the further it fades, so heat never ends up sitting under the words.
+  // Line boxes, not the block, so the fade follows the ragged right edge.
+  const h1El = fieldEl.querySelector('h1');
+  const textRects = [];
+
   let cw = 0, ch = 0, heatImg = null, bandMap = null;
   let boxW = 0, boxH = 0;   // canvas box in CSS px
   let boxL = 0, boxT = 0;   // …and its viewport position, refreshed every frame
-  let srcX = [], srcY = [];    // node centres in graph-local px
+  let srcX = [], srcY = [];    // node centres, relative to the field box
   let hotX = 0, hotY = 0;      // spring position of the hot source
   let hotTX = 0, hotTY = 0;    // where it wants to be
   let hotVX = 0, hotVY = 0;    // spring velocity
@@ -1407,13 +1592,14 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const SPRING = .075, DAMP = .80;
 
   // Cursor source — armed by the first node hover, then it trails the pointer
-  let armed = false, curSeen = false;
+  let armed = false, curSeen = false, curInside = false;
   let ptrCX = 0, ptrCY = 0;    // last pointer position, viewport coords
   let curX = 0, curY = 0, curVX = 0, curVY = 0;
+  let curHeat = 0;             // 0..1 — the source's own fade, tied to being on-canvas
   const CUR_SPRING = .11, CUR_DAMP = .78;
 
   function measureGlow(){
-    const gr = graphEl.getBoundingClientRect();
+    const gr = fieldEl.getBoundingClientRect();
     if (!gr.width || !gr.height) return;
     const nw = Math.max(1, Math.ceil(gr.width  / CELL));
     const nh = Math.max(1, Math.ceil(gr.height / CELL));
@@ -1441,6 +1627,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     R_REST = R_REST_VB * vbScale;
     R_CUR  = R_CUR_VB  * vbScale;
     PROX_D = PROX_D_VB * vbScale;
+    CUR_PROX_D = CUR_PROX_D_VB * vbScale;
+    TEXT_FADE_D = TEXT_FADE_D_VB * vbScale;
     VEL_REF = 30 * vbScale;   // px/frame at which the stretch maxes out
     srcX = []; srcY = [];
     nodeEls.forEach(el => {
@@ -1448,22 +1636,40 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       srcX.push(r.left + r.width  / 2 - gr.left);
       srcY.push(r.top  + r.height / 2 - gr.top);
     });
+    textRects.length = 0;
+    if (h1El){
+      const range = document.createRange();
+      range.selectNodeContents(h1El);
+      for (const r of range.getClientRects()){
+        if (!r.width || !r.height) continue;
+        textRects.push([r.left - gr.left, r.top - gr.top, r.right - gr.left, r.bottom - gr.top]);
+      }
+    }
   }
   measureGlow();
   window.addEventListener('resize', measureGlow);
+  // The headline reflows once the display face lands — re-measure then
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureGlow);
 
   // Once armed, the field stays alive for as long as the pointer is in the hero —
   // the cursor source is what keeps it lit between nodes.
-  const heroEl = graphEl.closest('section') || graphEl;
+  const heroEl = fieldEl;
+  // Leaving the canvas stops the source chasing the pointer and starts it fading
+  // out where it stands — it eases away rather than halting mid-stride.
+  function releaseCursor(){ curInside = false; }
+
   heroEl.addEventListener('pointermove', (e) => {
     if (armed) heatTarget = 1;
-    // Only track the pointer while it is over the canvas itself. Outside it the
-    // source holds its last position instead of following the cursor off-box.
+    // Only track the pointer while it is over the canvas itself
     const lx = e.clientX - boxL, ly = e.clientY - boxT;
-    if (lx < 0 || ly < 0 || lx > boxW || ly > boxH) return;
+    if (lx < 0 || ly < 0 || lx > boxW || ly > boxH){ releaseCursor(); return; }
+    curInside = true;
     ptrCX = e.clientX; ptrCY = e.clientY;
   });
-  heroEl.addEventListener('pointerleave', () => { heatTarget = 0; focusTarget = 0; });
+  heroEl.addEventListener('pointerleave', () => {
+    releaseCursor();
+    heatTarget = 0; focusTarget = 0;
+  });
 
   function setGlowTarget(i){
     if (i < 0){
@@ -1525,11 +1731,42 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
     // Cursor source — its own, looser spring, so it lags the pointer and smears
     // in the direction it is being dragged. Read the rect live: it moves on scroll.
-    const gr = graphEl.getBoundingClientRect();
+    const gr = fieldEl.getBoundingClientRect();
     boxL = gr.left; boxT = gr.top;   // the box moves on scroll — keep the bounds test honest
-    const curTX = ptrCX - gr.left;
-    const curTY = ptrCY - gr.top;
-    if (!curSeen && armed){ curX = curTX; curY = curTY; curSeen = true; }
+    if (!curSeen && armed){
+      // Seed it under the pointer, or at the node that armed it if the pointer
+      // is not over the canvas yet
+      curX = curInside ? ptrCX - gr.left : hotTX;
+      curY = curInside ? ptrCY - gr.top  : hotTY;
+      curSeen = true;
+    }
+    // Off the canvas the target *is* the current position — zero error, so the
+    // spring coasts to rest instead of chasing the pointer off-box. Box-local, so
+    // scrolling can't drag it either. Meanwhile curHeat fades the source out.
+    const curTX = curInside ? ptrCX - gr.left : curX;
+    const curTY = curInside ? ptrCY - gr.top  : curY;
+    // How near the graph the cursor source currently sits — 1 on a node, falling
+    // off with the distance to the closest one. It drives both the source's size
+    // and its fade, so straying from the graph shrinks it and then puts it out.
+    let dmin2 = Infinity;
+    for (let i = 0; i < srcX.length; i++){
+      const dx = srcX[i] - curX, dy = srcY[i] - curY;
+      const d2 = dx * dx + dy * dy;
+      if (d2 < dmin2) dmin2 = d2;
+    }
+    const curProx = dmin2 === Infinity ? 1 : 1 / (1 + dmin2 / (CUR_PROX_D * CUR_PROX_D));
+    // Distance to the nearest line of type — zero once the source is over it
+    let textD2 = Infinity;
+    for (let i = 0; i < textRects.length; i++){
+      const t = textRects[i];
+      const dx = Math.max(t[0] - curX, 0, curX - t[2]);
+      const dy = Math.max(t[1] - curY, 0, curY - t[3]);
+      const d2 = dx * dx + dy * dy;
+      if (d2 < textD2) textD2 = d2;
+    }
+    const textFade = textD2 === Infinity ? 1
+                   : textD2 / (textD2 + TEXT_FADE_D * TEXT_FADE_D);
+    curHeat += ((curInside ? curProx * textFade : 0) - curHeat) * .08;
     curVX = (curVX + (curTX - curX) * CUR_SPRING) * CUR_DAMP;
     curVY = (curVY + (curTY - curY) * CUR_SPRING) * CUR_DAMP;
     curX += curVX;
@@ -1541,7 +1778,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     const cca = Math.cos(cang), csa = Math.sin(cang);
 
     const hotR2 = (R_HOT * bloom) * (R_HOT * bloom) * heat * focus;
-    const curR2 = curSeen ? R_CUR * R_CUR * heat : 0;
+    const rCur  = R_CUR * (CUR_R_MIN + (1 - CUR_R_MIN) * curProx);
+    const curR2 = (curSeen && curHeat > .004) ? rCur * rCur * heat * curHeat : 0;
 
     // The cursor source reflects off the walls of the box. Each edge it comes
     // near gets a mirror-image source on the far side, so the heat that would
@@ -1551,7 +1789,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     // Entry [1,0,1,0] is the identity — the real source.
     const mirrors = [[1, 0, 1, 0]];
     if (curR2){
-      const reach = R_CUR * 2;
+      const reach = rCur * 2;
       if (curX         < reach) mirrors.push([-1, 0,        1, 0]);
       if (boxW - curX  < reach) mirrors.push([-1, 2 * boxW, 1, 0]);
       if (curY         < reach) mirrors.push([ 1, 0,       -1, 0]);
@@ -1578,6 +1816,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       return r * r * heat;
     });
 
+    blendCurRamp(focus);   // accent when idle → the field's colour under focus
+
     const buf = heatImg.data;
     buf.fill(0);
     const n = srcX.length;
@@ -1587,7 +1827,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       for (let cx = 0; cx < cw; cx++){
         const px = (cx + .5) * CELL;
 
-        let total = 0;
+        // `best`/`curDom` track which source owns the pixel — the cursor paints
+        // from its own ramp, everything else from the field's
+        let total = 0, best = 0, curDom = false;
 
         // Hot source, measured in its own stretched frame
         if (hotR2){
@@ -1602,6 +1844,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
           const s3 = s * (3 - 4 * s * s);
           const c3 = c * (4 * c * c - 3);
           total = hotR2 / hd2 * (1 + .12 * (s3 * wobC + c3 * wobS));
+          best  = total;
         }
 
         // Cursor source, in its own stretched frame — plus one pass per active
@@ -1613,7 +1856,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
             const cdy = (mm[2] * py + mm[3]) - curY;
             const crx = ( cdx * cca + cdy * csa) / csx;
             const cry = (-cdx * csa + cdy * cca) / csy;
-            total += curR2 / (crx * crx + cry * cry || 1);
+            const c = curR2 / (crx * crx + cry * cry || 1);
+            total += c;
+            if (c > best){ best = c; curDom = true; }
           }
         }
 
@@ -1621,7 +1866,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
           const r2 = nodeR2[i];
           if (!r2) continue;
           const ndx = px - srcX[i], ndy = py - srcY[i];
-          total += r2 / (ndx * ndx + ndy * ndy || 1);
+          const c = r2 / (ndx * ndx + ndy * ndy || 1);
+          total += c;
+          if (c > best){ best = c; curDom = false; }
         }
 
         let a = 0, band = 0;
@@ -1632,7 +1879,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         if (a === 0) continue;
         band -= 1;
 
-        const rgb = RAMP[band];
+        const rgb = curDom ? CUR_RAMP[band] : RAMP[band];
         const idx = (cy * cw + cx) * 4;
         buf[idx]     = rgb[0];
         buf[idx + 1] = rgb[1];
@@ -1794,6 +2041,204 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 
 
 <script>
+// ─── Approach desk: draggable icon stickers + their windows ──────────────────
+(() => {
+  const desk = document.getElementById('desk');
+  if (!desk) return;
+  const icons = [...desk.querySelectorAll('.desk-icon')];
+  const DRAG_SLOP = 5;   // px of travel before a press counts as a drag, not a click
+
+  // Measure the natural flex layout once, then pin every icon absolutely at the
+  // spot it landed on. Dragging one after that can't reflow the rest.
+  let placed = false, lastW = 0;
+  function layoutDesk(){
+    // Measuring a container that has no width yet (hidden tab, mid-load) would
+    // pin every icon at 0,0 — wait for a real box instead.
+    if (!desk.clientWidth){ placed = false; return; }
+    desk.classList.remove('placed');
+    desk.style.height = '';
+    icons.forEach(el => { el.style.left = ''; el.style.top = ''; });
+    const dr = desk.getBoundingClientRect();
+    lastW = desk.clientWidth;   // compare against the same integer measure everywhere
+    const pos = icons.map(el => {
+      const r = el.getBoundingClientRect();
+      return [r.left - dr.left, r.top - dr.top];
+    });
+    desk.style.height = dr.height + 'px';
+    desk.classList.add('placed');
+    icons.forEach((el, i) => {
+      el.style.left = pos[i][0] + 'px';
+      el.style.top  = pos[i][1] + 'px';
+    });
+    placed = true;
+  }
+  layoutDesk();
+  addEventListener('resize', layoutDesk);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(layoutDesk);
+  // Re-flow whenever the column itself changes width — covers the first real
+  // layout after load as well as anything that resizes the grid around it
+  if (window.ResizeObserver){
+    new ResizeObserver(() => {
+      if (desk.clientWidth && desk.clientWidth !== lastW) layoutDesk();
+    }).observe(desk);
+  }
+
+  icons.forEach(el => {
+    let down = false, moved = false;
+    let startX = 0, startY = 0, startLeft = 0, startTop = 0;
+
+    // Anchors (CV, GitHub) start a native link drag on pointerdown, which eats
+    // the pointermove events — suppress it so they drag like the other icons
+    el.addEventListener('dragstart', (e) => e.preventDefault());
+
+    el.addEventListener('pointerdown', (e) => {
+      if (e.button !== undefined && e.button !== 0) return;
+      // Catch a layout taken before the column had its real width, without
+      // depending on a frame being delivered
+      if (!placed || desk.clientWidth !== lastW) layoutDesk();
+      down = true; moved = false;
+      startX = e.clientX; startY = e.clientY;
+      startLeft = parseFloat(el.style.left) || 0;
+      startTop  = parseFloat(el.style.top)  || 0;
+      el.setPointerCapture(e.pointerId);
+    });
+
+    el.addEventListener('pointermove', (e) => {
+      if (!down) return;
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!moved && dx*dx + dy*dy < DRAG_SLOP*DRAG_SLOP) return;
+      if (!moved){ moved = true; el.classList.add('dragging'); }
+      el.style.left = startLeft + dx + 'px';
+      el.style.top  = startTop  + dy + 'px';
+    });
+
+    const end = (e) => {
+      if (!down) return;
+      down = false;
+      el.classList.remove('dragging');
+      try { el.releasePointerCapture(e.pointerId); } catch(_){}
+    };
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+
+    // A press that turned into a drag must not also count as a click
+    el.addEventListener('click', (e) => {
+      if (moved){ e.preventDefault(); e.stopPropagation(); moved = false; return; }
+      pop(el);
+      const what = el.dataset.open;
+      if (what){ e.preventDefault(); openWindow(what, el); }
+      // links with data-pop keep their default behaviour — the bounce just plays
+    });
+  });
+
+  function pop(el){
+    el.classList.remove('pop');
+    void el.offsetWidth;          // restart the animation
+    el.classList.add('pop');
+    el.addEventListener('animationend', () => el.classList.remove('pop'), {once:true});
+  }
+
+  // ── Windows ────────────────────────────────────────────────────────────────
+  const FOLDER_ITEMS = `
+    <div class="win-grid">
+      <a class="win-item" href="cv.pdf" target="_blank" rel="noopener" download>
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M14 10a6 6 0 0 1 6-6h18l14 14v36a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z" fill="#fff" stroke="rgba(0,0,0,.18)"/>
+          <path d="M38 4l14 14H42a4 4 0 0 1-4-4z" fill="#D4D4D8"/>
+          <rect x="14" y="34" width="30" height="15" rx="3.5" fill="#8B1010"/>
+          <text x="29" y="45.4" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#fff">PDF</text>
+        </svg><span>cv.pdf</span>
+      </a>
+      <a class="win-item" href="https://github.com/Matz999" target="_blank" rel="noopener">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <rect x="6" y="6" width="52" height="52" rx="13" fill="#1c1c20"/>
+          <path transform="translate(15 15) scale(1.42)" fill="#fff" d="M12 .296C5.371.296 0 5.667 0 12.296c0 5.302 3.438 9.8 8.207 11.387.6.111.793-.261.793-.577 0-.286-.011-1.244-.017-2.256-3.338.725-4.042-1.416-4.042-1.416-.546-1.388-1.333-1.758-1.333-1.758-1.089-.744.083-.729.083-.729 1.205.085 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.605-2.665-.303-5.466-1.333-5.466-5.931 0-1.31.469-2.381 1.236-3.221-.124-.303-.535-1.523.117-3.176 0 0 1.008-.322 3.301 1.23a11.51 11.51 0 0 1 3.003-.404c1.02.005 2.047.138 3.006.404 2.29-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.873.119 3.176.769.84 1.235 1.911 1.235 3.221 0 4.61-2.807 5.625-5.479 5.921.43.371.815 1.104.815 2.226 0 1.606-.014 2.901-.014 3.293 0 .319.192.694.801.576C20.566 22.092 24 17.594 24 12.296 24 5.667 18.629.296 12 .296z"/>
+        </svg><span>github</span>
+      </a>
+      <a class="win-item" href="#work">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M5 17a5 5 0 0 1 5-5h13.6a5 5 0 0 1 3.5 1.5l3.4 3.4A5 5 0 0 0 34 18.4h20a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="#A32C26"/>
+          <path d="M5 25.5a5 5 0 0 1 5-5h44a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="#C0453D"/>
+        </svg><span>proyectos</span>
+      </a>
+    </div>`;
+
+  const NOTE = `
+    <div class="note-head">Cómo trabajo</div>
+    <div class="note-date">Nota · siempre en borrador</div>
+    <ol class="note-list">
+      <li><span class="n"></span><span>Entender antes de dibujar. La pregunta correcta ahorra semanas de pantallas lindas.</span></li>
+      <li><span class="n"></span><span>Prototipar rápido, decidir despacio. Lo que se prueba en un día se sostiene por años.</span></li>
+      <li><span class="n"></span><span>Menos capas, más criterio. Cada dependencia hay que poder justificarla.</span></li>
+      <li><span class="n"></span><span>Si no se puede explicar en una frase, todavía no está resuelto.</span></li>
+    </ol>`;
+
+  const WINDOWS = {
+    folder: { title: 'Máximo — Carpeta', body: FOLDER_ITEMS },
+    note:   { title: 'Nota',             body: NOTE },
+  };
+
+  let backdrop = null, win = null, opener = null;
+
+  function openWindow(kind, iconEl){
+    const spec = WINDOWS[kind];
+    if (!spec) return;
+    closeWindow();
+    opener = iconEl;
+    iconEl.classList.add('open');
+
+    backdrop = document.createElement('div');
+    backdrop.className = 'win-backdrop';
+    backdrop.addEventListener('pointerdown', closeWindow);
+
+    win = document.createElement('div');
+    win.className = 'win';
+    win.setAttribute('role', 'dialog');
+    win.setAttribute('aria-modal', 'true');
+    win.setAttribute('aria-label', spec.title);
+    win.innerHTML =
+      `<div class="win-bar">` +
+        `<button class="win-dot r" type="button" aria-label="Cerrar"></button>` +
+        `<span class="win-dot y"></span><span class="win-dot g"></span>` +
+        `<span class="win-title">${spec.title}</span>` +
+      `</div>` +
+      `<div class="win-body">${spec.body}</div>`;
+    win.querySelector('.win-dot.r').addEventListener('click', closeWindow);
+    // Grow out of the icon that opened it, clamped so an icon that is off-screen
+    // (or barely in view) can't throw the origin far outside the window
+    const r = iconEl.getBoundingClientRect();
+    const clamp = v => Math.max(-15, Math.min(115, v));
+    win.style.transformOrigin =
+      `${clamp((r.left + r.width/2) / innerWidth  * 100)}% ` +
+      `${clamp((r.top  + r.height/2) / innerHeight * 100)}%`;
+
+    document.body.append(backdrop, win);
+    // Flush styles so the transition has a starting point, without waiting on a
+    // frame — a rAF here never fires if the tab is not rendering
+    void win.offsetWidth;
+    backdrop.classList.add('show');
+    win.classList.add('show');
+    win.querySelector('.win-dot.r').focus({preventScroll:true});
+  }
+
+  function closeWindow(){
+    if (!win) return;
+    const w = win, b = backdrop, o = opener;
+    win = backdrop = opener = null;
+    if (o) o.classList.remove('open');
+    w.classList.remove('show');
+    b.classList.remove('show');
+    setTimeout(() => { w.remove(); b.remove(); }, 260);
+  }
+
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') closeWindow(); });
+  // Anything that navigates should take the window with it
+  document.addEventListener('click', (e) => {
+    if (win && e.target.closest('.win-item')) closeWindow();
+  });
+})();
+
+
 // ─── Draggable service stickers (with Windows-95-style trail ghosts) ─────────
 (() => {
   const GHOST_SPAWN_DIST = 2;   // px of movement between each ghost
