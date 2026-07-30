@@ -363,6 +363,7 @@
   .about-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--col-gap)}
   .about-title{
     grid-column:1/7;
+    grid-row:1;
     font-family:var(--display);
     font-weight:700;
     font-size:clamp(28px, 4vw, 60px);
@@ -372,6 +373,7 @@
   .about-title em{font-style:normal;font-weight:300;color:var(--aa, var(--accent))}
   .about-body{
     grid-column:8/13;
+    grid-row:1/3;
     font-size:16px;
     line-height:1.65;
     color:var(--at2, var(--ink-2));
@@ -380,8 +382,11 @@
   .about-body p+p{margin-top:16px}
   /* --- Approach desk: draggable icon stickers --- */
   .desk{
-    grid-column:8/13;
-    margin-top:30px;
+    grid-column:1/7;
+    grid-row:2;
+    align-self:start;
+    margin-top:124px;
+    margin-left:-14px;
     position:relative;
     display:flex;
     flex-wrap:wrap;
@@ -648,6 +653,28 @@
     padding-bottom:2px;transition:color .3s, border-color .3s;
   }
   .contact-block .v a:hover{color:var(--accent);border-color:var(--accent)}
+  /* Email chooser inside the contact block — looks like the link, drops downward */
+  .contact-block .email-btn.as-link{
+    font:inherit;letter-spacing:inherit;color:inherit;
+    background:none;border:0;padding:0 0 2px;cursor:pointer;
+    display:inline-flex;align-items:baseline;gap:5px;
+    border-bottom:1px solid var(--ink);transition:color .3s,border-color .3s;
+  }
+  .contact-block .email-btn.as-link:hover,
+  .contact-block .email-menu.open .email-btn.as-link{color:var(--accent);border-color:var(--accent)}
+  .contact-block .email-btn .chev{font-size:.5em;transition:transform .2s}
+  .contact-block .email-menu.open .email-btn .chev{transform:rotate(180deg)}
+  /* Pop out to the right of the address, sliding in from the right */
+  .email-menu.right .email-pop{
+    top:50%;bottom:auto;left:calc(100% + 14px);
+    transform:translateX(10px) translateY(-50%);
+  }
+  .email-menu.right.open .email-pop{transform:translateX(0) translateY(-50%)}
+  .email-menu.right .email-pop::after{
+    top:50%;bottom:auto;left:auto;right:100%;transform:translateY(-50%);
+    border-color:transparent;border-right-color:#fff;
+    filter:drop-shadow(-1px 0 0 var(--line));
+  }
   .cta{grid-column:span 4;align-self:center}
   .cta a{
     background:#fff;color:var(--accent);border:1.5px solid var(--accent);
@@ -673,12 +700,59 @@
   footer .center{text-align:center}
   footer .right{text-align:right;display:flex;justify-content:flex-end;gap:18px}
 
+  /* Footer email — click opens a copy / Gmail popover */
+  .email-menu{position:relative;display:inline-block}
+  .email-btn{
+    font:inherit;letter-spacing:inherit;text-transform:inherit;
+    color:var(--mute);background:none;border:0;padding:0;cursor:pointer;
+    display:inline-flex;align-items:center;gap:6px;transition:color .2s;
+  }
+  .email-btn:hover,.email-menu.open .email-btn{color:var(--ink)}
+  .email-btn .chev{font-size:8px;transition:transform .2s}
+  .email-menu.open .email-btn .chev{transform:rotate(180deg)}
+  .email-pop{
+    position:absolute;
+    bottom:calc(100% + 12px);
+    left:50%;
+    transform:translateX(-50%) translateY(6px);
+    min-width:168px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:10px;
+    box-shadow:0 16px 34px -14px rgba(0,0,0,.3);
+    padding:6px;
+    display:flex;flex-direction:column;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:opacity .2s ease, transform .2s cubic-bezier(.2,.9,.3,1.1), visibility .2s;
+    z-index:5;
+  }
+  .email-menu.open .email-pop{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+  .email-pop button{
+    font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:0;text-transform:none;
+    color:var(--ink);background:none;border:0;border-radius:6px;
+    padding:7px 9px;text-align:left;cursor:pointer;
+    display:flex;align-items:center;gap:8px;transition:background .15s;
+  }
+  .email-pop button:hover{background:#f2f2f2}
+  .email-pop .addr{
+    padding:9px 12px 10px;color:var(--mute);font-size:10px;letter-spacing:.04em;
+    text-transform:none;border-bottom:1px solid var(--line);margin-bottom:4px;
+    text-align:left;word-break:break-all;
+  }
+  .email-pop svg{width:13px;height:13px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8}
+  /* Little caret pointing down at the button */
+  .email-pop::after{
+    content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);
+    border:6px solid transparent;border-top-color:#fff;
+    filter:drop-shadow(0 1px 0 var(--line));
+  }
+
   /* --- Responsive --- */
   @media (max-width:920px){
     .nav-links{gap:20px}
     .hero{padding-top:100px;min-height:100svh}
     .about-grid{grid-template-columns:1fr;gap:32px}
-    .about-title,.about-body,.desk{grid-column:1/-1}
+    .about-title,.about-body,.desk{grid-column:1/-1;grid-row:auto}
     #services{padding-top:80px;padding-bottom:100px}
     .services{min-height:auto;display:flex;flex-direction:column;gap:24px;align-items:center}
     .service{position:static;width:min(340px,90%);padding:24px 22px}
@@ -835,10 +909,10 @@
           <svg class="glyph" viewBox="0 0 64 64" aria-hidden="true">
             <defs>
               <linearGradient id="fdBack" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#C9564F"/><stop offset="1" stop-color="#A32C26"/>
+                <stop offset="0" stop-color="#3D9A61"/><stop offset="1" stop-color="#1E5A33"/>
               </linearGradient>
               <linearGradient id="fdFront" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0" stop-color="#F0837B"/><stop offset="1" stop-color="#C0453D"/>
+                <stop offset="0" stop-color="#5EBE80"/><stop offset="1" stop-color="#2E7D4A"/>
               </linearGradient>
             </defs>
             <path d="M5 17a5 5 0 0 1 5-5h13.6a5 5 0 0 1 3.5 1.5l3.4 3.4A5 5 0 0 0 34 18.4h20a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="url(#fdBack)"/>
@@ -856,9 +930,9 @@
               </linearGradient>
             </defs>
             <rect x="9" y="6" width="46" height="52" rx="8" fill="url(#ntPaper)" stroke="rgba(0,0,0,.16)" stroke-width="1"/>
-            <rect x="9" y="6" width="46" height="11" rx="8" fill="#F2C14E"/>
-            <rect x="9" y="14" width="46" height="3" fill="#F2C14E"/>
-            <g stroke="#B9AFA0" stroke-width="2.4" stroke-linecap="round">
+            <rect x="9" y="6" width="46" height="11" rx="8" fill="#2F8C52"/>
+            <rect x="9" y="14" width="46" height="3" fill="#2F8C52"/>
+            <g stroke="#93B39B" stroke-width="2.4" stroke-linecap="round">
               <path d="M17 27h30"/><path d="M17 35h30"/><path d="M17 43h20"/>
             </g>
           </svg>
@@ -874,7 +948,7 @@
             </defs>
             <path d="M14 10a6 6 0 0 1 6-6h18l14 14v36a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z" fill="url(#cvDoc)" stroke="rgba(0,0,0,.16)" stroke-width="1"/>
             <path d="M38 4l14 14H42a4 4 0 0 1-4-4z" fill="#D4D4D8"/>
-            <rect x="14" y="34" width="30" height="15" rx="3.5" fill="#8B1010"/>
+            <rect x="14" y="34" width="30" height="15" rx="3.5" fill="#24803F"/>
             <text x="29" y="45.4" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#fff">PDF</text>
           </svg>
           <span class="label">CV</span>
@@ -930,7 +1004,23 @@
       <div class="contact-grid">
         <div class="contact-block reveal d1">
           <span class="k">Email</span>
-          <p class="v"><a href="mailto:maximovpulitano@gmail.com">maximovpulitano@gmail.com</a></p>
+          <div class="v">
+            <span class="email-menu right" id="emailMenuContact">
+              <button class="email-btn as-link" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="emailPopContact">
+                maximovpulitano@gmail.com
+              </button>
+              <div class="email-pop" id="emailPopContact" role="menu">
+                <button type="button" role="menuitem" data-act="copy">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                  <span class="txt">Copiar dirección</span>
+                </button>
+                <button type="button" role="menuitem" data-act="gmail">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                  <span class="txt">Abrir en Gmail</span>
+                </button>
+              </div>
+            </span>
+          </div>
         </div>
         <div class="contact-block reveal d2">
           <span class="k">GitHub</span>
@@ -962,6 +1052,65 @@ const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 8);
 }, {passive:true});
+
+// ─── Email choosers: copy address or open in Gmail (footer + contact) ────────
+(() => {
+  const EMAIL = 'maximovpulitano@gmail.com';
+  const menus = [...document.querySelectorAll('.email-menu')];
+  if (!menus.length) return;
+
+  const closeAll = (except) => menus.forEach(m => { if (m !== except) setOpen(m, false); });
+
+  function setOpen(menu, on){
+    menu.classList.toggle('open', on);
+    menu.querySelector('.email-btn').setAttribute('aria-expanded', on ? 'true' : 'false');
+    if (!on){
+      const t = menu.querySelector('[data-act="copy"] .txt');
+      if (t) t.textContent = t.dataset.label || t.textContent;
+    }
+  }
+
+  async function copyEmail(){
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+    } catch (_) {
+      // Fallback for browsers/contexts without the async clipboard API
+      const t = document.createElement('textarea');
+      t.value = EMAIL; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select();
+      try { document.execCommand('copy'); } catch (_){}
+      t.remove();
+    }
+  }
+
+  menus.forEach(menu => {
+    const btn     = menu.querySelector('.email-btn');
+    const copyTxt = menu.querySelector('[data-act="copy"] .txt');
+    if (copyTxt) copyTxt.dataset.label = copyTxt.textContent;
+
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = !menu.classList.contains('open');
+      closeAll(menu);
+      setOpen(menu, willOpen);
+    });
+
+    menu.querySelector('[data-act="copy"]').addEventListener('click', async () => {
+      await copyEmail();
+      if (copyTxt) copyTxt.textContent = '¡Copiado!';
+      setTimeout(() => setOpen(menu, false), 750);
+    });
+
+    menu.querySelector('[data-act="gmail"]').addEventListener('click', () => {
+      window.open('https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(EMAIL),
+                  '_blank', 'noopener');
+      setOpen(menu, false);
+    });
+  });
+
+  document.addEventListener('click', (e) => { if (!e.target.closest('.email-menu')) closeAll(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeAll(); });
+})();
 
 // ─── Approach colour wheel ────────────────────────────────────────────────────
 const APPROACH_SHADES = [
@@ -2145,7 +2294,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
         <svg viewBox="0 0 64 64" aria-hidden="true">
           <path d="M14 10a6 6 0 0 1 6-6h18l14 14v36a6 6 0 0 1-6 6H20a6 6 0 0 1-6-6z" fill="#fff" stroke="rgba(0,0,0,.18)"/>
           <path d="M38 4l14 14H42a4 4 0 0 1-4-4z" fill="#D4D4D8"/>
-          <rect x="14" y="34" width="30" height="15" rx="3.5" fill="#8B1010"/>
+          <rect x="14" y="34" width="30" height="15" rx="3.5" fill="#24803F"/>
           <text x="29" y="45.4" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="10.5" font-weight="700" fill="#fff">PDF</text>
         </svg><span>cv.pdf</span>
       </a>
@@ -2157,8 +2306,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
       </a>
       <a class="win-item" href="#work">
         <svg viewBox="0 0 64 64" aria-hidden="true">
-          <path d="M5 17a5 5 0 0 1 5-5h13.6a5 5 0 0 1 3.5 1.5l3.4 3.4A5 5 0 0 0 34 18.4h20a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="#A32C26"/>
-          <path d="M5 25.5a5 5 0 0 1 5-5h44a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="#C0453D"/>
+          <path d="M5 17a5 5 0 0 1 5-5h13.6a5 5 0 0 1 3.5 1.5l3.4 3.4A5 5 0 0 0 34 18.4h20a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="#1E5A33"/>
+          <path d="M5 25.5a5 5 0 0 1 5-5h44a5 5 0 0 1 5 5V47a5 5 0 0 1-5 5H10a5 5 0 0 1-5-5z" fill="#2E7D4A"/>
         </svg><span>proyectos</span>
       </a>
     </div>`;
