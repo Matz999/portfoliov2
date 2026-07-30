@@ -63,6 +63,18 @@
     font-size:14px;
     letter-spacing:-.01em;
     color:var(--ink);
+    display:inline-block;
+    transform-origin:50% 60%;
+  }
+  .brand.wiggle{animation:brand-wiggle .55s ease}
+  @keyframes brand-wiggle{
+    0%{transform:rotate(0) scale(1)}
+    15%{transform:rotate(-7deg) scale(1.04)}
+    32%{transform:rotate(6deg)}
+    48%{transform:rotate(-4deg)}
+    64%{transform:rotate(3deg)}
+    80%{transform:rotate(-1.5deg)}
+    100%{transform:rotate(0) scale(1)}
   }
   .nav-links{
     display:flex;
@@ -112,6 +124,21 @@
     color:var(--accent);
   }
   .hero h1 .dot-end{color:var(--accent)}
+  /* "bien" hangs there for a beat, then tips over and drops off the line —
+     the sentence is left reading "cosas que funcionan ." on purpose */
+  .hero h1 .fall-word{
+    display:inline-block;
+    transform-origin:12% 90%;
+    animation:word-fall 1.5s 5.2s forwards;
+  }
+  @keyframes word-fall{
+    0%{  transform:translateY(0) rotate(0);       animation-timing-function:cubic-bezier(.34,-.5,.6,1)}
+    16%{ transform:translateY(-7px) rotate(-12deg);animation-timing-function:cubic-bezier(.5,0,.8,.2)}
+    100%{transform:translateY(150px) rotate(96deg);opacity:0}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .hero h1 .fall-word{animation:none}
+  }
 
   .node-graph{
     position:relative;
@@ -693,8 +720,8 @@
   footer{
     border-top:1px solid var(--line);padding:28px var(--gutter);
     display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;
-    font-family:var(--mono);font-size:10px;text-transform:uppercase;
-    letter-spacing:.12em;color:var(--mute);align-items:center;
+    font-family:var(--display);font-size:13px;font-weight:400;
+    letter-spacing:-.01em;color:var(--mute);align-items:center;
   }
   footer a:hover{color:var(--ink)}
   footer .center{text-align:center}
@@ -750,7 +777,11 @@
   /* --- Responsive --- */
   @media (max-width:920px){
     .nav-links{gap:20px}
-    .hero{padding-top:100px;min-height:100svh}
+    .hero{padding-top:100px;min-height:100svh;grid-template-columns:1fr}
+    /* Hero is a hover toy — no hover on touch, so the nodes come off and the
+       text centres; the heat field stays and follows finger swipes instead. */
+    .hero h1{text-align:center;max-width:18ch;margin-left:auto;margin-right:auto}
+    .node-graph{display:none}
     .about-grid{grid-template-columns:1fr;gap:32px}
     .about-title,.about-body,.desk{grid-column:1/-1;grid-row:auto}
     #services{padding-top:80px;padding-bottom:100px}
@@ -847,7 +878,7 @@
     <h1 class="reveal">
       Me gusta <br>
       <em>diseñar</em><br>
-      y <em>desarrollar</em>  cosas que funcionan bien<span class="dot-end">.</span>
+      y <em>desarrollar</em>  cosas que <span class="ok-word">funcionan</span> <span class="fall-word">bien</span><span class="dot-end">.</span>
     </h1>
     <div class="node-graph" id="nodeGraph">
       <svg id="nodeGraphSvg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet"></svg>
@@ -1052,6 +1083,18 @@ const nav = document.getElementById('nav');
 window.addEventListener('scroll', () => {
   nav.classList.toggle('scrolled', window.scrollY > 8);
 }, {passive:true});
+
+// ─── Brand wiggle on click ───────────────────────────────────────────────────
+(() => {
+  const brand = document.querySelector('.brand');
+  if (!brand) return;
+  brand.addEventListener('click', () => {
+    brand.classList.remove('wiggle');
+    void brand.offsetWidth;        // restart the animation
+    brand.classList.add('wiggle');
+  });
+  brand.addEventListener('animationend', () => brand.classList.remove('wiggle'));
+})();
 
 // ─── Email choosers: copy address or open in Gmail (footer + contact) ────────
 (() => {
@@ -1613,7 +1656,12 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   // to burn hotter than the rest. Once the graph has been touched once, a further
   // source trails the cursor. The summed field is quantised into a handful of flat
   // alpha steps, so the falloff lands as banded contours rather than a smooth ramp.
-  const CELL   = 2.5;    // px per heat cell — small enough that the bands read clean
+  // px per heat cell. Chosen per-measure so the field never exceeds CELL_BUDGET
+  // cells — the whole-hero canvas would otherwise blow up on wide screens (a
+  // 1280px hero at 2.5px is ~160k cells, run every frame). Clamped so small
+  // screens still get fine bands and big ones stay smooth.
+  const CELL_BUDGET = 34000, CELL_MIN = 2.5, CELL_MAX = 5;
+  let CELL = CELL_MIN;
   // Source radii in viewBox units — scaled to px in measureGlow so the field keeps
   // its proportions against the graph at any viewport size
   const R_HOT_VB  = 210;  // the hovered node's source
@@ -1740,6 +1788,11 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   let painted = false;
   const SPRING = .075, DAMP = .80;
 
+  // On touch/narrow layouts the nodes are hidden (see CSS): the field can't be
+  // armed by a hover, so it arms on its own and the finger swipe is the only heat
+  // source — no node sources, no headline repulsion, just the glow chasing the drag.
+  let mobile = false;
+
   // Cursor source — armed by the first node hover, then it trails the pointer
   let armed = false, curSeen = false, curInside = false;
   let ptrCX = 0, ptrCY = 0;    // last pointer position, viewport coords
@@ -1750,6 +1803,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   function measureGlow(){
     const gr = fieldEl.getBoundingClientRect();
     if (!gr.width || !gr.height) return;
+    // Pick the cell size that keeps the grid near the budget for this box
+    CELL = Math.max(CELL_MIN, Math.min(CELL_MAX,
+      Math.sqrt(gr.width * gr.height / CELL_BUDGET)));
     const nw = Math.max(1, Math.ceil(gr.width  / CELL));
     const nh = Math.max(1, Math.ceil(gr.height / CELL));
     if (nw !== cw || nh !== ch || !heatImg){
@@ -1779,14 +1835,20 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     CUR_PROX_D = CUR_PROX_D_VB * vbScale;
     TEXT_FADE_D = TEXT_FADE_D_VB * vbScale;
     VEL_REF = 30 * vbScale;   // px/frame at which the stretch maxes out
+    // Match the CSS breakpoint that hides the nodes. On mobile there are no node
+    // sources to read and no headline repulsion — the field is armed from the off
+    // so the first swipe lights it.
+    mobile = window.matchMedia('(max-width:920px)').matches;
+    if (mobile) armed = true;
+
     srcX = []; srcY = [];
-    nodeEls.forEach(el => {
+    if (!mobile) nodeEls.forEach(el => {
       const r = el.querySelector('.node-circle').getBoundingClientRect();
       srcX.push(r.left + r.width  / 2 - gr.left);
       srcY.push(r.top  + r.height / 2 - gr.top);
     });
     textRects.length = 0;
-    if (h1El){
+    if (!mobile && h1El){
       const range = document.createRange();
       range.selectNodeContents(h1El);
       for (const r of range.getClientRects()){
@@ -1819,6 +1881,11 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     releaseCursor();
     heatTarget = 0; focusTarget = 0;
   });
+  // Touch: a swipe ends when the finger lifts or the browser steals the gesture
+  // for a scroll — fade the field out then, the way leaving the box does on desktop.
+  const endTouch = () => { if (!mobile) return; releaseCursor(); heatTarget = 0; focusTarget = 0; };
+  heroEl.addEventListener('pointerup', endTouch);
+  heroEl.addEventListener('pointercancel', endTouch);
 
   function setGlowTarget(i){
     if (i < 0){
