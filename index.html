@@ -130,19 +130,21 @@
      (the exact distance is measured and set in JS) */
   .hero h1 .dot-end{color:var(--accent);display:inline-block;transition:transform .6s cubic-bezier(.5,.05,.2,1)}
   /* "bien" hangs there for a beat, then tips over and falls clean off the line —
-     no fade, it just drops; the sentence is left reading "funcionan." on purpose */
+     no fade, it just drops; the sentence is left reading "funcionan." on purpose.
+     The fall is triggered from JS (adds .fall) only once the hero has actually
+     been on screen for a beat — never while the landing is scrolled past. */
   .hero h1 .fall-word{
     display:inline-block;
     transform-origin:12% 90%;
-    animation:word-fall 1.5s 5.2s forwards;
   }
+  .hero h1 .fall-word.fall{animation:word-fall 1.5s forwards}
   @keyframes word-fall{
     0%{  transform:translateY(0) rotate(0);        animation-timing-function:cubic-bezier(.34,-.5,.6,1)}
     16%{ transform:translateY(-7px) rotate(-12deg);animation-timing-function:cubic-bezier(.45,.05,.85,.2)}
     100%{transform:translateY(95vh) rotate(96deg)}
   }
   @media (prefers-reduced-motion: reduce){
-    .hero h1 .fall-word{animation:none}
+    .hero h1 .fall-word.fall{animation:none}
   }
 
   .node-graph{
@@ -789,9 +791,14 @@
     .node-graph{display:none}
     .about-grid{grid-template-columns:1fr;gap:32px}
     .about-title,.about-body,.desk{grid-column:1/-1;grid-row:auto}
+    /* Touch: the desk stickers are locked in a tidy centred row — no dragging,
+       and touches scroll the page instead of being captured as drags. */
+    .desk{margin:8px 0 0;justify-content:center;gap:12px 10px;touch-action:auto}
+    .desk-icon{touch-action:auto;cursor:default}
     #services{padding-top:80px;padding-bottom:100px}
     .services{min-height:auto;display:flex;flex-direction:column;gap:24px;align-items:center}
-    .service{position:static;width:min(340px,90%);padding:24px 22px}
+    /* Same on the service stickers: static, non-draggable, scrollable */
+    .service{position:static;width:min(340px,90%);padding:24px 22px;touch-action:auto;cursor:default}
     .project{
       grid-template-columns:1fr auto;
       grid-template-rows:auto auto;row-gap:6px;padding:20px var(--gutter);
@@ -1108,16 +1115,47 @@ window.addEventListener('scroll', () => {
   const ok   = document.querySelector('.hero h1 .ok-word');
   if (!word || !dot || !ok) return;
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // Once "bien" lands, hide it (instant, no fade — it's already off-screen) and
+  // slide the dot left to the end of "funcionan". Horizontal only: the dot is
+  // already baseline-aligned in the flow, and the tail's nowrap keeps them on one
+  // line — touching Y would only lift it off the baseline (inline-block vs inline).
   word.addEventListener('animationend', () => {
-    // Measure the gap "bien" leaves while it still holds its inline box, then
-    // hide it (instant, no fade — it's already off-screen) and slide the dot left
-    // to the end of "funcionan". Horizontal only: the dot is already baseline-
-    // aligned in the flow, and the tail's nowrap keeps them on one line — touching
-    // Y would only lift it off the baseline (inline-block vs inline box tops differ).
     const dx = ok.getBoundingClientRect().right - dot.getBoundingClientRect().left;
     word.style.visibility = 'hidden';
     dot.style.transform = 'translateX(' + dx + 'px)';
   }, { once: true });
+
+  // "bien" only falls after the hero has actually been on screen for ~5s. The
+  // countdown runs only while the landing is in view AND the tab is in front;
+  // scrolling away or backgrounding the tab pauses it, so the drop is never
+  // spent off-screen. Fires once, then the observer is torn down.
+  const hero = word.closest('section');
+  const DELAY = 5200;
+  let timer = 0, inView = false, played = false, io = null;
+  const play = () => {
+    played = true;
+    if (timer){ clearTimeout(timer); timer = 0; }
+    word.classList.add('fall');
+    if (io) io.disconnect();
+    document.removeEventListener('visibilitychange', evaluate);
+  };
+  function evaluate(){
+    if (played) return;
+    const seeing = inView && document.visibilityState === 'visible';
+    if (seeing && !timer)      timer = setTimeout(play, DELAY);   // start the beat
+    else if (!seeing && timer){ clearTimeout(timer); timer = 0; } // pause it
+  }
+  if (hero && 'IntersectionObserver' in window){
+    io = new IntersectionObserver((entries) => {
+      inView = entries[0].isIntersecting;
+      evaluate();
+    }, { threshold: 0.5 });
+    io.observe(hero);
+    document.addEventListener('visibilitychange', evaluate);
+  } else {
+    setTimeout(() => word.classList.add('fall'), DELAY);   // fallback: just play
+  }
 })();
 
 // ─── Email choosers: copy address or open in Gmail (footer + contact) ────────
@@ -1573,22 +1611,23 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const ACCENT = getComputedStyle(document.documentElement)
     .getPropertyValue('--accent').trim() || '#8B1010';
 
-  // 7 nodes — los ejes que realmente definen el perfil
+  // 8 nodes — no herramientas sino los ejes de criterio que definen el perfil
   const nodes = [
-    { interest:'react',       desc:'Componentes con estado.',                    video:'project_images/hero-react.mp4'      },
-    { interest:'javascript',  desc:'Vanilla, sin dependencias.',                 video:'project_images/hero-javascript.mp4' },
-    { interest:'python',      desc:'Scripts que trabajan solos.',                video:'project_images/hero-python.mp4'     },
-    { interest:'postgres',    desc:'Consultas, joins, modelado.',                video:'project_images/hero-postgres.mp4'   },
-    { interest:'figma',       desc:'Prototipos y sistemas.',                     video:'project_images/hero-figma.mp4'      },
-    { interest:'design',      desc:'La disciplina madre: pensar antes de hacer.',                video:'project_images/hero-design.mp4'     },
-    { interest:'ingeniería',  desc:'Foco sostenido, matemática aplicada.',    video:'project_images/hero-ingenieria.mp4' },
+    { interest:'Diseño',              desc:'La disciplina madre: UI, jerarquía y sistemas visuales con criterio.' },
+    { interest:'UX',                  desc:'Research y empatía: entender al que está del otro lado antes de dibujar.' },
+    { interest:'Programación',        desc:'React, JavaScript, Python y SQL — la materia con la que se construye.' },
+    { interest:'Análisis de datos',   desc:'Los datos como guía: decidir sobre evidencia, no sobre la corazonada.' },
+    { interest:'Código limpio',       desc:'Buenas prácticas: menos capas, más criterio; cada dependencia se justifica.' },
+    { interest:'Rapidez y claridad',  desc:'Rápido de cargar, claro de leer: la performance también es respeto.' },
+    { interest:'AI / ML',             desc:'Modelos como herramienta, no como fin — al servicio de la persona.' },
+    { interest:'Software ético',      desc:'Tecnología que eleva al humano en vez de explotar su atención.' },
   ];
   // Label = padded index (01, 02, …)
   nodes.forEach((n, i) => { n.label = String(i + 1).padStart(2, '0'); });
 
   // Pure random positions inside the viewBox (padded + min-distance)
   const PAD = 120;
-  const MIN_DIST = 260;
+  const MIN_DIST = 235;
   nodes.forEach((n, i) => {
     let x = 0, y = 0;
     for (let attempts = 0; attempts < 100; attempts++){
@@ -1609,19 +1648,21 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   nodes.forEach(n => { n.tx = n.x; n.ty = n.y; });
 
   // Meaningful connections — cada arista refleja una relación real
-  // 0 react · 1 javascript · 2 python · 3 postgres · 4 figma · 5 design · 6 ingeniería
+  // 0 Diseño · 1 UX · 2 Programación · 3 Análisis de datos · 4 Código limpio
+  // 5 Rapidez y claridad · 6 AI/ML · 7 Software ético
   const links = [
-    [0,1],  // react ↔ javascript          (React es JS)
-    [1,2],  // javascript ↔ python         (dos lenguajes de trabajo diario)
-    [1,3],  // javascript ↔ postgres       (frontend consulta la base)
-    [2,3],  // python ↔ postgres           (procesamiento de datos + scraping)
-    [4,5],  // figma ↔ design              (herramienta → disciplina)
-    [4,0],  // figma ↔ react               (del prototipo al componente)
-    [5,0],  // design ↔ react              (el diseño se materializa en interfaz)
-    [6,0],  // ingeniería ↔ react          (construir software)
-    [6,2],  // ingeniería ↔ python         (scripting como práctica ingenieril)
-    [6,3],  // ingeniería ↔ postgres       (modelar datos = pensar sistemas)
-    [6,5],  // ingeniería ↔ design         (diseño como disciplina de ingeniería)
+    [0,1],  // Diseño ↔ UX                 (la forma sirve a la experiencia)
+    [1,2],  // UX ↔ Programación           (del research a la interfaz)
+    [1,3],  // UX ↔ Análisis de datos      (la investigación se apoya en datos)
+    [0,5],  // Diseño ↔ Rapidez y claridad (claridad es una decisión de diseño)
+    [0,7],  // Diseño ↔ Software ético     (diseñar = respetar al que está del otro lado)
+    [2,4],  // Programación ↔ Código limpio(la materia bien escrita)
+    [2,5],  // Programación ↔ Rapidez      (performance como oficio)
+    [4,5],  // Código limpio ↔ Rapidez     (código claro = rápido y legible)
+    [3,6],  // Análisis de datos ↔ AI/ML   (los modelos comen datos)
+    [2,6],  // Programación ↔ AI/ML        (implementar los modelos)
+    [1,7],  // UX ↔ Software ético         (respetar la atención del usuario)
+    [6,7],  // AI/ML ↔ Software ético      (inteligencia con conciencia)
   ];
 
   // Test mode: straight lines (was a quadratic bezier with side-bulge — kept the
@@ -1910,6 +1951,17 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   const endTouch = () => { if (!mobile) return; releaseCursor(); heatTarget = 0; focusTarget = 0; };
   heroEl.addEventListener('pointerup', endTouch);
   heroEl.addEventListener('pointercancel', endTouch);
+  // A press lights the field right where the finger lands — needed on touch,
+  // where a tap fires no pointermove, and a swipe can be taken for a scroll (and
+  // cancelled) before the first move ever arrives. The source blooms at contact.
+  heroEl.addEventListener('pointerdown', (e) => {
+    if (!armed) return;
+    const lx = e.clientX - boxL, ly = e.clientY - boxT;
+    if (lx < 0 || ly < 0 || lx > boxW || ly > boxH) return;
+    heatTarget = 1;
+    curInside = true;
+    ptrCX = e.clientX; ptrCY = e.clientY;
+  });
 
   function setGlowTarget(i){
     if (i < 0){
@@ -2287,6 +2339,10 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   if (!desk) return;
   const icons = [...desk.querySelectorAll('.desk-icon')];
   const DRAG_SLOP = 5;   // px of travel before a press counts as a drag, not a click
+  // On touch layouts the icons are locked: no absolute pinning, no dragging —
+  // they sit in the natural centred row (see CSS) and clicks still open them.
+  const deskMQ = window.matchMedia('(max-width:920px)');
+  const deskLocked = () => deskMQ.matches;
 
   // Measure the natural flex layout once, then pin every icon absolutely at the
   // spot it landed on. Dragging one after that can't reflow the rest.
@@ -2295,6 +2351,15 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     // Measuring a container that has no width yet (hidden tab, mid-load) would
     // pin every icon at 0,0 — wait for a real box instead.
     if (!desk.clientWidth){ placed = false; return; }
+    // Locked on touch: strip any pinning and leave the icons in normal flow so
+    // they can't be shoved around and the page scrolls through them.
+    if (deskLocked()){
+      desk.classList.remove('placed');
+      desk.style.height = '';
+      icons.forEach(el => { el.style.left = ''; el.style.top = ''; });
+      placed = false;
+      return;
+    }
     desk.classList.remove('placed');
     desk.style.height = '';
     icons.forEach(el => { el.style.left = ''; el.style.top = ''; });
@@ -2332,6 +2397,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     el.addEventListener('dragstart', (e) => e.preventDefault());
 
     el.addEventListener('pointerdown', (e) => {
+      if (deskLocked()) return;   // locked on touch — let the tap fall through to click
       if (e.button !== undefined && e.button !== 0) return;
       // Catch a layout taken before the column had its real width, without
       // depending on a frame being delivered
@@ -2502,12 +2568,16 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   }
 
   const stickers = document.querySelectorAll('.service');
+  // Locked on touch — the cards stack statically (see CSS) and stay draggable
+  // only on pointer/desktop layouts.
+  const svcMQ = window.matchMedia('(max-width:920px)');
   stickers.forEach(el => {
     let dragging = false;
     let startX = 0, startY = 0, startLeft = 0, startTop = 0;
     let lastGhostLeft = 0, lastGhostTop = 0;
 
     el.addEventListener('pointerdown', (e) => {
+      if (svcMQ.matches) return;   // locked on touch — no dragging, page scrolls
       if (e.button !== 0) return;
       const parent = el.parentElement;
       const rect = el.getBoundingClientRect();
