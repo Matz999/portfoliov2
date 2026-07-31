@@ -123,18 +123,23 @@
     font-weight:300;
     color:var(--accent);
   }
-  .hero h1 .dot-end{color:var(--accent)}
-  /* "bien" hangs there for a beat, then tips over and drops off the line —
-     the sentence is left reading "cosas que funcionan ." on purpose */
+  /* Keep "funcionan bien." on one line so the dot only ever has to slide left
+     to close the gap "bien" leaves — never up a wrapped line */
+  .hero h1 .tail{white-space:nowrap}
+  /* The dot glides left once "bien" is gone, landing tight after "funcionan"
+     (the exact distance is measured and set in JS) */
+  .hero h1 .dot-end{color:var(--accent);display:inline-block;transition:transform .6s cubic-bezier(.5,.05,.2,1)}
+  /* "bien" hangs there for a beat, then tips over and falls clean off the line —
+     no fade, it just drops; the sentence is left reading "funcionan." on purpose */
   .hero h1 .fall-word{
     display:inline-block;
     transform-origin:12% 90%;
     animation:word-fall 1.5s 5.2s forwards;
   }
   @keyframes word-fall{
-    0%{  transform:translateY(0) rotate(0);       animation-timing-function:cubic-bezier(.34,-.5,.6,1)}
-    16%{ transform:translateY(-7px) rotate(-12deg);animation-timing-function:cubic-bezier(.5,0,.8,.2)}
-    100%{transform:translateY(150px) rotate(96deg);opacity:0}
+    0%{  transform:translateY(0) rotate(0);        animation-timing-function:cubic-bezier(.34,-.5,.6,1)}
+    16%{ transform:translateY(-7px) rotate(-12deg);animation-timing-function:cubic-bezier(.45,.05,.85,.2)}
+    100%{transform:translateY(95vh) rotate(96deg)}
   }
   @media (prefers-reduced-motion: reduce){
     .hero h1 .fall-word{animation:none}
@@ -878,7 +883,7 @@
     <h1 class="reveal">
       Me gusta <br>
       <em>diseñar</em><br>
-      y <em>desarrollar</em>  cosas que <span class="ok-word">funcionan</span> <span class="fall-word">bien</span><span class="dot-end">.</span>
+      y <em>desarrollar</em>  cosas que <span class="tail"><span class="ok-word">funcionan</span> <span class="fall-word">bien</span><span class="dot-end">.</span></span>
     </h1>
     <div class="node-graph" id="nodeGraph">
       <svg id="nodeGraphSvg" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet"></svg>
@@ -1069,7 +1074,7 @@
 </main>
 
 <footer>
-  <div class="left">@maximopulitano</div>
+  <div class="left">@matz999</div>
   <div class="center"></div>
   <div class="right">
     <a href="https://www.linkedin.com/in/maximo-pulitano-617318221/" target="_blank" rel="noopener">LinkedIn</a>
@@ -1094,6 +1099,25 @@ window.addEventListener('scroll', () => {
     brand.classList.add('wiggle');
   });
   brand.addEventListener('animationend', () => brand.classList.remove('wiggle'));
+})();
+
+// ─── "bien" falls away, then the dot slides in after "funcionan" ──────────────
+(() => {
+  const word = document.querySelector('.hero h1 .fall-word');
+  const dot  = document.querySelector('.hero h1 .dot-end');
+  const ok   = document.querySelector('.hero h1 .ok-word');
+  if (!word || !dot || !ok) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  word.addEventListener('animationend', () => {
+    // Measure the gap "bien" leaves while it still holds its inline box, then
+    // hide it (instant, no fade — it's already off-screen) and slide the dot left
+    // to the end of "funcionan". Horizontal only: the dot is already baseline-
+    // aligned in the flow, and the tail's nowrap keeps them on one line — touching
+    // Y would only lift it off the baseline (inline-block vs inline box tops differ).
+    const dx = ok.getBoundingClientRect().right - dot.getBoundingClientRect().left;
+    word.style.visibility = 'hidden';
+    dot.style.transform = 'translateX(' + dx + 'px)';
+  }, { once: true });
 })();
 
 // ─── Email choosers: copy address or open in Gmail (footer + contact) ────────
