@@ -5,7 +5,8 @@
       "WebFetch(domain:madegooddesigns.com)",
       "WebFetch(domain:evturner.dev)",
       "mcp__Claude_Preview__preview_start",
-      "Bash(curl -sL -m 20 https://studio-vanta.com/)"
+      "Bash(curl -sL -m 20 https://studio-vanta.com/)",
+      "Bash(find /c/Users/maxim/Desktop/studio-vanta-main -maxdepth 3 -type f | head -25 *)"
     ]
   }
 }

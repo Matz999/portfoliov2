@@ -4,7 +4,16 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Mamíferos Argentinos — Máximo Pulitano</title>
-<meta name="description" content="Rediseño conceptual del sitio gubernamental sobre los mamíferos nativos de la Argentina." />
+<meta name="description" content="Rediseño y reconstrucción en Next.js de la lista roja de mamíferos de la Argentina: 426 páginas prerenderizadas sobre datos públicos de SAREM." />
+
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://maximopulitano.pages.dev/projects/mamiferos-argentinos.html" />
+<meta property="og:title" content="Mamíferos Argentinos — Máximo Pulitano" />
+<meta property="og:description" content="Rediseño y build en Next.js de la lista roja nacional de mamíferos: 426 páginas prerenderizadas, sin backend." />
+<meta property="og:image" content="https://maximopulitano.pages.dev/project_images/og-mamiferos.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta name="twitter:card" content="summary_large_image" />
 
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 
@@ -157,6 +166,10 @@
   }
   .slide .text p + p{margin-top:14px}
   .slide .text p em{font-style:normal;font-weight:700;color:var(--accent)}
+  .slide .text p a{border-bottom:1px solid var(--line)}
+  .slide .text p a:hover{border-bottom-color:var(--accent)}
+  .slide .text dd a{border-bottom:1px solid var(--line)}
+  .slide .text dd a:hover{border-bottom-color:var(--accent)}
 
   /* Credits */
   .slide .text dl{
@@ -302,7 +315,7 @@
     </div>
     <div class="text">
       <h1>Mamíferos<br>Argentinos</h1>
-      <p class="sub">Identidad &amp; sitio gubernamental</p>
+      <p class="sub">Rediseño &amp; build · Next.js</p>
     </div>
   </section>
 
@@ -314,7 +327,7 @@
     <div class="text">
       <span class="label">— La portada</span>
       <h2>Un sitio institucional que también invita a explorar.</h2>
-      <p>Rediseño conceptual del portal que cataloga los mamíferos nativos de la Argentina. La portada abre con la especie destacada y un buscador directo: el sitio original cumplía la función informativa pero <em>perdía</em> a estudiantes, divulgadores y curiosos.</p>
+      <p>Rediseño y reconstrucción de <a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">cma.sarem.org.ar</a>, la lista roja nacional de mamíferos. Un prototipo hecho sobre los datos públicos del sitio oficial: la portada abre con la especie destacada y un buscador directo, porque el original cumplía la función informativa pero <em>perdía</em> a estudiantes, divulgadores y curiosos.</p>
     </div>
   </section>
 
@@ -397,8 +410,8 @@
     </div>
     <div class="text">
       <span class="label">— El proyecto</span>
-      <h2>Del formulario al catálogo vivo.</h2>
-      <p>Metodología, categorías, cómo citar y de dónde salen los datos, todo a un clic. Un sistema visual que soporta actualización constante sin perder consistencia: el sitio pasó de leerse como <em>trámite</em> a leerse como enciclopedia curada.</p>
+      <h2>426 páginas, cero backend.</h2>
+      <p>Metodología, categorías, cómo citar y de dónde salen los datos, todo a un clic. Y debajo, la decisión de fondo: el original es una SPA que le pide todo a una API, así que cada ficha le llega a Google como un HTML vacío. Acá las 417 fichas se <em>prerenderizan en el build</em> — HTML completo, metadata y sitemap por especie, servible desde un CDN y sin caerse si se cae la API.</p>
     </div>
   </section>
 
@@ -410,13 +423,14 @@
     <div class="text">
       <h2>Mamíferos Argentinos</h2>
       <dl>
-        <dt>Cliente</dt><dd>Proyecto conceptual</dd>
-        <dt>Año</dt><dd>2024</dd>
+        <dt>Cliente</dt><dd>Proyecto de diseño y desarrollo</dd>
+        <dt>Año</dt><dd>2026</dd>
         <dt>Locación</dt><dd>Buenos Aires, AR</dd>
-        <dt>Rol</dt><dd>Dirección de arte, identidad y diseño web</dd>
-        <dt>Alcance</dt><dd>Logo, sistema visual, sitio responsive</dd>
-        <dt>Tools</dt><dd>Figma, Illustrator, Webflow</dd>
-        <dt>Status</dt><dd>Caso de estudio personal</dd>
+        <dt>Rol</dt><dd>Identidad, diseño y desarrollo</dd>
+        <dt>Alcance</dt><dd>Logo, sistema visual, sitio de 426 páginas</dd>
+        <dt>Tools</dt><dd>Next.js, React, TypeScript, Tailwind, Figma</dd>
+        <dt>Datos</dt><dd><a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">SAREM · cma.sarem.org.ar</a></dd>
+        <dt>Status</dt><dd>Prototipo sobre datos públicos</dd>
       </dl>
     </div>
   </section>
