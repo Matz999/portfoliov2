@@ -19,7 +19,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@300..600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
   :root{
@@ -31,7 +31,6 @@
     --accent:  #8B1010;
     --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
     --sans:    'Inter Tight', system-ui, sans-serif;
-    --mono:    'JetBrains Mono', ui-monospace, monospace;
     --bar:     56px;
   }
 
@@ -126,28 +125,12 @@
     gap:22px;
     max-width:680px;
   }
-  .slide .text .label{
-    font-family:var(--mono);
-    font-size:12px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.14em;
-    text-transform:uppercase;
-  }
   .slide .text h1{
     font-family:var(--display);
     font-weight:800;
     font-size:clamp(48px, 6vw, 96px);
     line-height:.95;
     letter-spacing:-.035em;
-  }
-  .slide .text .sub{
-    font-family:var(--mono);
-    font-size:14px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.14em;
-    text-transform:uppercase;
   }
   .slide .text h2{
     font-family:var(--display);
@@ -168,27 +151,16 @@
   .slide .text p em{font-style:normal;font-weight:700;color:var(--accent)}
   .slide .text p a{border-bottom:1px solid var(--line)}
   .slide .text p a:hover{border-bottom-color:var(--accent)}
-  .slide .text dd a{border-bottom:1px solid var(--line)}
-  .slide .text dd a:hover{border-bottom-color:var(--accent)}
 
-  /* Credits */
-  .slide .text dl{
-    display:grid;
-    grid-template-columns:130px 1fr;
-    column-gap:20px;
-    row-gap:12px;
-    margin-top:8px;
+  /* Ficha tecnica (sin rotulos) */
+  .slide .text .facts{
+    list-style:none;
+    margin-top:2px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
   }
-  .slide .text dt{
-    font-family:var(--mono);
-    font-size:12px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    padding-top:3px;
-  }
-  .slide .text dd{
+  .slide .text .facts li{
     font-family:var(--display);
     font-weight:700;
     font-size:17px;
@@ -196,22 +168,8 @@
     line-height:1.3;
     letter-spacing:-.01em;
   }
-
-  /* Counter (bottom-left) */
-  .counter{
-    position:fixed;
-    bottom:28px;
-    left:clamp(20px, 3vw, 40px);
-    z-index:60;
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--ink);
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    pointer-events:none;
-  }
-  .counter .sep{color:var(--mute);margin:0 6px}
-  .counter .total{color:var(--mute)}
+  .slide .text .facts a{transition:color .25s}
+  .slide .text .facts a:hover{color:var(--accent)}
 
   /* Advance button (bottom-right) */
   .advance{
@@ -243,9 +201,9 @@
     width:auto;
     padding:0 22px;
     border-radius:999px;
-    font-family:var(--mono);
-    font-size:11px;
-    letter-spacing:.14em;
+    font-family:var(--display);
+    font-size:12px;
+    letter-spacing:.06em;
     text-transform:uppercase;
     height:48px;
   }
@@ -295,7 +253,7 @@
     .slide .image{border-right:none;border-bottom:1px solid var(--line);height:55vh;padding:24px}
     .slide .image.logo img{max-width:240px;max-height:50%}
     .slide .text{padding:32px 24px 80px;max-width:none}
-    .counter, .advance, .back{display:none}
+    .advance, .back{display:none}
   }
 </style>
 </head>
@@ -315,7 +273,6 @@
     </div>
     <div class="text">
       <h1>Mamíferos<br>Argentinos</h1>
-      <p class="sub">Rediseño &amp; build · Next.js</p>
     </div>
   </section>
 
@@ -325,7 +282,6 @@
       <img data-src="../project_images/mamiferos/home.webp" alt="Portada del sitio Mamíferos Argentinos" />
     </div>
     <div class="text">
-      <span class="label">— La portada</span>
       <h2>Un sitio institucional que también invita a explorar.</h2>
       <p>Rediseño y reconstrucción de <a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">cma.sarem.org.ar</a>, la lista roja nacional de mamíferos. Un prototipo hecho sobre los datos públicos del sitio oficial: la portada abre con la especie destacada y un buscador directo, porque el original cumplía la función informativa pero <em>perdía</em> a estudiantes, divulgadores y curiosos.</p>
     </div>
@@ -337,7 +293,6 @@
       <img data-src="../project_images/mamiferos/estado-numeros.webp" alt="Cuatro cifras clave del estado de conservación" />
     </div>
     <div class="text">
-      <span class="label">— El estado, en cuatro números</span>
       <h2>El dato antes que el discurso.</h2>
       <p>417 especies evaluadas, 101 amenazadas, 68 con datos insuficientes, 7 ya extintas. La primera pantalla resume la magnitud del problema en cifras que se leen de un vistazo <em>antes</em> de entrar al detalle.</p>
     </div>
@@ -349,7 +304,6 @@
       <img data-src="../project_images/mamiferos/reparto-especies.webp" alt="Barra de distribución por categoría UICN" />
     </div>
     <div class="text">
-      <span class="label">— Cómo se reparten las 417</span>
       <h2>Una sola barra para entender la lista roja.</h2>
       <p>Cada franja es proporcional a la cantidad de especies en su categoría UICN, de <em>extinta</em> a <em>preocupación menor</em>. La visualización vuelve tangible una tabla que en el original era pura planilla.</p>
     </div>
@@ -361,7 +315,6 @@
       <img data-src="../project_images/mamiferos/peligro-critico.webp" alt="Fichas de las siete especies en peligro crítico" />
     </div>
     <div class="text">
-      <span class="label">— Las siete en peligro crítico</span>
       <h2>Cada especie, una ficha con cara.</h2>
       <p>Fotografía, nombre común y científico, familia y tendencia poblacional. La grilla de fichas convierte la categoría más urgente en algo <em>concreto</em>: siete animales, no una sigla.</p>
     </div>
@@ -373,7 +326,6 @@
       <img data-src="../project_images/mamiferos/cambios-2019.webp" alt="Comparación de categorías entre 2019 y 2024" />
     </div>
     <div class="text">
-      <span class="label">— Qué cambió desde 2019</span>
       <h2>El matiz importa: no todo cambio es deterioro.</h2>
       <p>39 especies cambiaron de categoría entre 2019 y 2024. La comparación separa las que <em>empeoraron</em> de las que solo se pudieron evaluar mejor — un detalle que el dato crudo suele borrar.</p>
     </div>
@@ -385,7 +337,6 @@
       <img data-src="../project_images/mamiferos/distribucion.webp" alt="Riqueza de especies por provincia" />
     </div>
     <div class="text">
-      <span class="label">— Dónde vive cada especie</span>
       <h2>Navegación por territorio, no por taxonomía.</h2>
       <p>Riqueza de especies por provincia, ordenada y tocable para ver el listado de cada jurisdicción. Reorganizar la entrada por geografía la vuelve <em>más narrativa</em> y accesible al no-especialista.</p>
     </div>
@@ -397,7 +348,6 @@
       <img data-src="../project_images/mamiferos/por-grupo.webp" alt="Navegación por grupo taxonómico" />
     </div>
     <div class="text">
-      <span class="label">— Por grupo</span>
       <h2>Y para quien sí busca la taxonomía.</h2>
       <p>Roedores y murciélagos concentran dos tercios de la diversidad del país. Las tarjetas por orden mantienen una jerarquía tipográfica clara: display para los grupos, mono para el conteo de especies.</p>
     </div>
@@ -409,7 +359,6 @@
       <img data-src="../project_images/mamiferos/el-proyecto.webp" alt="Sección El proyecto, metodología y créditos" />
     </div>
     <div class="text">
-      <span class="label">— El proyecto</span>
       <h2>426 páginas, cero backend.</h2>
       <p>Metodología, categorías, cómo citar y de dónde salen los datos, todo a un clic. Y debajo, la decisión de fondo: el original es una SPA que le pide todo a una API, así que cada ficha le llega a Google como un HTML vacío. Acá las 417 fichas se <em>prerenderizan en el build</em> — HTML completo, metadata y sitemap por especie, servible desde un CDN y sin caerse si se cae la API.</p>
     </div>
@@ -422,23 +371,22 @@
     </div>
     <div class="text">
       <h2>Mamíferos Argentinos</h2>
-      <dl>
-        <dt>Cliente</dt><dd>Proyecto de diseño y desarrollo</dd>
-        <dt>Año</dt><dd>2026</dd>
-        <dt>Locación</dt><dd>Buenos Aires, AR</dd>
-        <dt>Rol</dt><dd>Identidad, diseño y desarrollo</dd>
-        <dt>Alcance</dt><dd>Logo, sistema visual, sitio de 426 páginas</dd>
-        <dt>Tools</dt><dd>Next.js, React, TypeScript, Tailwind, Figma</dd>
-        <dt>Datos</dt><dd><a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">SAREM · cma.sarem.org.ar</a></dd>
-        <dt>Status</dt><dd>Prototipo sobre datos públicos</dd>
-      </dl>
+      <ul class="facts">
+        <li>Proyecto de diseño y desarrollo</li>
+        <li>2026</li>
+        <li>Buenos Aires, AR</li>
+        <li>Identidad, diseño y desarrollo</li>
+        <li>Logo, sistema visual, sitio de 426 páginas</li>
+        <li>Next.js, React, TypeScript, Tailwind, Figma</li>
+        <li><a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">SAREM · cma.sarem.org.ar ↗</a></li>
+        <li>Prototipo sobre datos públicos</li>
+      </ul>
     </div>
   </section>
 
 </div>
 
 <!-- Fixed UI -->
-<div class="counter"><span class="current">01</span><span class="sep">/</span><span class="total">10</span></div>
 <button class="back" id="back" aria-label="Anterior">↑</button>
 <button class="advance" id="advance" aria-label="Siguiente">↓</button>
 
@@ -446,7 +394,6 @@
 (() => {
   const slides   = Array.from(document.querySelectorAll('.slide'));
   const total    = slides.length;
-  const counter  = document.querySelector('.counter .current');
   const advance  = document.getElementById('advance');
   const back     = document.getElementById('back');
 
@@ -477,7 +424,6 @@
   }
 
   function updateUI(){
-    counter.textContent = String(currentIdx + 1).padStart(2, '0');
     back.classList.toggle('visible', currentIdx > 0);
     if (currentIdx === total - 1){
       advance.innerHTML = 'Próximo →';

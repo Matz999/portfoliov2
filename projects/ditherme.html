@@ -16,7 +16,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@300..600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
   :root{
@@ -28,7 +28,6 @@
     --accent:  #8B1010;
     --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
     --sans:    'Inter Tight', system-ui, sans-serif;
-    --mono:    'JetBrains Mono', ui-monospace, monospace;
     --bar:     56px;
   }
 
@@ -123,28 +122,12 @@
     gap:22px;
     max-width:680px;
   }
-  .slide .text .label{
-    font-family:var(--mono);
-    font-size:12px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.14em;
-    text-transform:uppercase;
-  }
   .slide .text h1{
     font-family:var(--display);
     font-weight:800;
     font-size:clamp(48px, 6vw, 96px);
     line-height:.95;
     letter-spacing:-.035em;
-  }
-  .slide .text .sub{
-    font-family:var(--mono);
-    font-size:14px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.14em;
-    text-transform:uppercase;
   }
   .slide .text h2{
     font-family:var(--display);
@@ -166,36 +149,26 @@
 
   /* Live link (hero + credits) */
   .live{
-    font-family:var(--mono);
+    font-family:var(--display);
     font-size:13px;
     font-weight:500;
     letter-spacing:.1em;
     text-transform:uppercase;
     color:var(--accent);
     align-self:flex-start;
-    border-bottom:1px solid currentColor;
-    padding-bottom:3px;
   }
   .live:hover{color:var(--ink)}
 
-  /* Credits */
-  .slide .text dl{
-    display:grid;
-    grid-template-columns:130px 1fr;
-    column-gap:20px;
-    row-gap:12px;
-    margin-top:8px;
+
+  /* Ficha tecnica (sin rotulos) */
+  .slide .text .facts{
+    list-style:none;
+    margin-top:2px;
+    display:flex;
+    flex-direction:column;
+    gap:9px;
   }
-  .slide .text dt{
-    font-family:var(--mono);
-    font-size:12px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.08em;
-    text-transform:uppercase;
-    padding-top:3px;
-  }
-  .slide .text dd{
+  .slide .text .facts li{
     font-family:var(--display);
     font-weight:700;
     font-size:17px;
@@ -203,24 +176,8 @@
     line-height:1.3;
     letter-spacing:-.01em;
   }
-  .slide .text dd a{border-bottom:1px solid var(--line)}
-  .slide .text dd a:hover{border-bottom-color:var(--accent)}
-
-  /* Counter (bottom-left) */
-  .counter{
-    position:fixed;
-    bottom:28px;
-    left:clamp(20px, 3vw, 40px);
-    z-index:60;
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--ink);
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    pointer-events:none;
-  }
-  .counter .sep{color:var(--mute);margin:0 6px}
-  .counter .total{color:var(--mute)}
+  .slide .text .facts a{transition:color .25s}
+  .slide .text .facts a:hover{color:var(--accent)}
 
   /* Advance button (bottom-right) */
   .advance{
@@ -252,9 +209,9 @@
     width:auto;
     padding:0 22px;
     border-radius:999px;
-    font-family:var(--mono);
-    font-size:11px;
-    letter-spacing:.14em;
+    font-family:var(--display);
+    font-size:12px;
+    letter-spacing:.06em;
     text-transform:uppercase;
     height:48px;
   }
@@ -304,7 +261,7 @@
     .slide .image{border-right:none;border-bottom:1px solid var(--line);height:55vh;padding:24px}
     .slide .image.logo img{max-width:240px;max-height:50%}
     .slide .text{padding:32px 24px 80px;max-width:none}
-    .counter, .advance, .back{display:none}
+    .advance, .back{display:none}
   }
 </style>
 </head>
@@ -324,7 +281,6 @@
     </div>
     <div class="text">
       <h1>ditherme</h1>
-      <p class="sub">Juguete generativo · Navegador</p>
       <a class="live" href="https://ditherme.pages.dev" target="_blank" rel="noopener">ditherme.pages.dev ↗</a>
     </div>
   </section>
@@ -335,7 +291,6 @@
       <img data-src="../project_images/ditherme/dither-shot-2.png" alt="Forma de flor tramada en lima y celeste, estilo de píxel cruz" />
     </div>
     <div class="text">
-      <span class="label">— El artefacto</span>
       <h2>Una forma que no se repite nunca.</h2>
       <p>Cada ciclo empieza con una sola espora. Se divide, sus hijas se dividen, y así hasta que unas 1.500 llenan el interior de un contorno nuevo. Cuando termina, se disuelve y arranca otra: la pieza no se guarda, <em>vuelve a nacer</em>.</p>
     </div>
@@ -347,7 +302,6 @@
       <img data-src="../project_images/ditherme/dither-shot-3.png" alt="Forma tramada en rojo y cian con estilo de píxel cuadrado" />
     </div>
     <div class="text">
-      <span class="label">— Cómo nace la forma</span>
       <h2>Armónicos radiales, no ruido.</h2>
       <p>El contorno sale de una suma de armónicos con frecuencia, amplitud y fase al azar, más elongación y rotación. No es ruido filtrado: es una función periódica cerrada. Por eso las formas salen <em>orgánicas</em> sin salir deformes.</p>
     </div>
@@ -359,7 +313,6 @@
       <img data-src="../project_images/ditherme/dither-shot-1.png" alt="Forma tramada en líneas horizontales con la tira de postales abierta" />
     </div>
     <div class="text">
-      <span class="label">— El dithering</span>
       <h2>Dos tonos, y ninguno gana del todo.</h2>
       <p>Cada espora lleva un valor de mezcla del centro al borde, acotado para que los dos tonos aparezcan siempre. Bayer los entrama píxel a píxel: no hay regiones planas, hay <em>trama</em>. El contorno se traza en un tercer color, complementario a los dos rellenos.</p>
     </div>
@@ -371,7 +324,6 @@
       <img data-src="../project_images/ditherme/dither-shot-4.png" alt="Estrella tramada en verde y naranja junto al panel de controles" />
     </div>
     <div class="text">
-      <span class="label">— Los controles</span>
       <h2>Nueve tramas y todas las perillas.</h2>
       <p>Cuadrado, círculo, punto, rombo, cruz, equis, anillo y líneas: la trama se interseca con un mosaico de forma y cambia el carácter entero de la pieza. Forma, población, render, tonos y color se editan en vivo — y lo que salga bien <em>se baja en PNG</em>.</p>
     </div>
@@ -384,22 +336,21 @@
     </div>
     <div class="text">
       <h2>ditherme</h2>
-      <dl>
-        <dt>Cliente</dt><dd>Proyecto propio</dd>
-        <dt>Año</dt><dd>2026</dd>
-        <dt>Locación</dt><dd>Buenos Aires, AR</dd>
-        <dt>Rol</dt><dd>Concepto, diseño y desarrollo</dd>
-        <dt>Alcance</dt><dd>Motor generativo, interfaz, exportación</dd>
-        <dt>Tools</dt><dd>JavaScript, Canvas 2D</dd>
-        <dt>Status</dt><dd><a href="https://ditherme.pages.dev" target="_blank" rel="noopener">En línea · ditherme.pages.dev ↗</a></dd>
-      </dl>
+      <ul class="facts">
+        <li>Proyecto propio</li>
+        <li>2026</li>
+        <li>Buenos Aires, AR</li>
+        <li>Concepto, diseño y desarrollo</li>
+        <li>Motor generativo, interfaz, exportación</li>
+        <li>JavaScript, Canvas 2D</li>
+        <li><a href="https://ditherme.pages.dev" target="_blank" rel="noopener">En línea · ditherme.pages.dev ↗</a></li>
+      </ul>
     </div>
   </section>
 
 </div>
 
 <!-- Fixed UI -->
-<div class="counter"><span class="current">01</span><span class="sep">/</span><span class="total">06</span></div>
 <button class="back" id="back" aria-label="Anterior">↑</button>
 <button class="advance" id="advance" aria-label="Siguiente">↓</button>
 
@@ -407,7 +358,6 @@
 (() => {
   const slides   = Array.from(document.querySelectorAll('.slide'));
   const total    = slides.length;
-  const counter  = document.querySelector('.counter .current');
   const advance  = document.getElementById('advance');
   const back     = document.getElementById('back');
 
@@ -438,7 +388,6 @@
   }
 
   function updateUI(){
-    counter.textContent = String(currentIdx + 1).padStart(2, '0');
     back.classList.toggle('visible', currentIdx > 0);
     if (currentIdx === total - 1){
       advance.innerHTML = 'Próximo →';

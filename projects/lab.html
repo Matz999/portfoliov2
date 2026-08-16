@@ -19,7 +19,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&family=JetBrains+Mono:wght@300..600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
   :root{
@@ -31,7 +31,6 @@
     --accent:  #8B1010;
     --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
     --sans:    'Inter Tight', system-ui, sans-serif;
-    --mono:    'JetBrains Mono', ui-monospace, monospace;
     --bar:     56px;
   }
 
@@ -91,15 +90,6 @@
     line-height:.9;
     letter-spacing:-.04em;
   }
-  .intro .sub{
-    font-family:var(--mono);
-    font-size:13px;
-    font-weight:500;
-    color:var(--mute);
-    letter-spacing:.14em;
-    text-transform:uppercase;
-    margin-top:18px;
-  }
   .intro p{
     font-size:clamp(17px, 1.5vw, 22px);
     font-weight:500;
@@ -116,7 +106,7 @@
   }
   .tool{
     display:grid;
-    grid-template-columns:56px minmax(0,1fr) 260px;
+    grid-template-columns:minmax(0,1fr) 260px;
     gap:clamp(16px, 3vw, 48px);
     align-items:start;
     padding:clamp(28px, 3.4vw, 44px) 0;
@@ -124,13 +114,6 @@
   }
   .tool:last-child{border-bottom:1px solid var(--line)}
 
-  .t-idx{
-    font-family:var(--mono);
-    font-size:11px;
-    color:var(--mute);
-    letter-spacing:.14em;
-    padding-top:10px;
-  }
   .t-name{
     font-family:var(--display);
     font-weight:700;
@@ -161,36 +144,16 @@
     gap:10px;
     padding-top:8px;
   }
-  .t-stack{
-    font-family:var(--mono);
-    font-size:12px;
-    color:var(--mute);
-    line-height:1.6;
-  }
-  .t-status{
-    font-family:var(--mono);
-    font-size:11px;
-    letter-spacing:.12em;
-    text-transform:uppercase;
-    color:var(--ink);
-    border:1px solid var(--line);
-    padding:5px 10px;
-    align-self:flex-start;
-  }
-  .t-status.live{
-    color:var(--accent);
-    border-color:currentColor;
-  }
   .t-links{
     display:flex;
     flex-wrap:wrap;
     gap:14px;
-    font-family:var(--mono);
-    font-size:12px;
+    font-family:var(--display);
+    font-weight:500;
+    font-size:13px;
     margin-top:2px;
   }
-  .t-links a{border-bottom:1px solid var(--line)}
-  .t-links a:hover{border-bottom-color:var(--accent)}
+  .t-links a:hover{color:var(--accent)}
 
   /* Closing note */
   .note{
@@ -212,11 +175,11 @@
 
   @media (max-width: 820px){
     .tool{
-      grid-template-columns:36px minmax(0,1fr);
+      grid-template-columns:minmax(0,1fr);
       gap:14px;
     }
     .t-meta{
-      grid-column:2;
+      grid-column:1;
       padding-top:14px;
     }
   }
@@ -233,21 +196,17 @@
 
   <section class="intro">
     <h1>Lab<span style="color:var(--accent)">.</span></h1>
-    <p class="sub">Herramientas y experimentos</p>
     <p>Cosas que construí porque las necesitaba, o porque quería saber si se podía. Dos existen por la misma razón: la atención es finita y casi todo el software está diseñado para gastarla. El resto es curiosidad — generación procedural, tramas, píxeles.</p>
   </section>
 
   <ul class="tools">
 
     <li class="tool">
-      <span class="t-idx">01</span>
       <div class="t-main">
         <h2 class="t-name"><a href="https://ditherme.pages.dev" target="_blank" rel="noopener">ditherme<span class="arr">↗</span></a></h2>
         <p class="t-desc">Un juguete generativo: una espora se divide hasta llenar una forma orgánica, que se renderiza como un campo de dithering ordenado de dos tonos. Nueve estilos de trama, modo de dibujo y exportación en PNG.</p>
       </div>
       <div class="t-meta">
-        <span class="t-status live">En línea</span>
-        <span class="t-stack">JavaScript · Canvas 2D</span>
         <span class="t-links">
           <a href="ditherme.html">Caso de estudio</a>
           <a href="https://github.com/Matz999/ditherme" target="_blank" rel="noopener">Código</a>
@@ -256,14 +215,11 @@
     </li>
 
     <li class="tool">
-      <span class="t-idx">02</span>
       <div class="t-main">
         <h2 class="t-name"><a href="https://github.com/Matz999/detox" target="_blank" rel="noopener">detox<span class="arr">↗</span></a></h2>
         <p class="t-desc">Extensión de Chrome que convierte X en una superficie de lectura calma: esconde métricas, publicidad y media, y abre cada sesión con un selector de temas que <em>congela el feed</em> — y pausa las llamadas de red — hasta que elegís qué querés leer.</p>
       </div>
       <div class="t-meta">
-        <span class="t-status">Código abierto</span>
-        <span class="t-stack">JavaScript · Chrome MV3 · chrome.storage</span>
         <span class="t-links">
           <a href="https://github.com/Matz999/detox" target="_blank" rel="noopener">Código</a>
         </span>
@@ -271,26 +227,18 @@
     </li>
 
     <li class="tool">
-      <span class="t-idx">03</span>
       <div class="t-main">
         <h2 class="t-name">yt gist</h2>
         <p class="t-desc">Extensión que apaga el color de los thumbnails de YouTube y, al pasar el mouse, muestra un resumen de una línea del video. Usa tu clave de Anthropic u OpenAI si la configurás, y si no <em>cae en un resumidor local</em> que corre entero en el navegador.</p>
       </div>
-      <div class="t-meta">
-        <span class="t-status">En desarrollo</span>
-        <span class="t-stack">JavaScript · Chrome MV3 · IntersectionObserver</span>
-      </div>
     </li>
 
     <li class="tool">
-      <span class="t-idx">04</span>
       <div class="t-main">
         <h2 class="t-name"><a href="https://github.com/Matz999/Tessera" target="_blank" rel="noopener">Tessera<span class="arr">↗</span></a></h2>
         <p class="t-desc">Generador procedural de azulejos determinista: siete familias, de truchet a difusión-reacción. Cada tile es reproducible desde su semilla y sus parámetros, que viajan escritos dentro del PNG.</p>
       </div>
       <div class="t-meta">
-        <span class="t-status">Código abierto</span>
-        <span class="t-stack">Python · numpy · Pillow</span>
         <span class="t-links">
           <a href="https://github.com/Matz999/Tessera" target="_blank" rel="noopener">Código</a>
         </span>
@@ -298,14 +246,11 @@
     </li>
 
     <li class="tool">
-      <span class="t-idx">05</span>
       <div class="t-main">
         <h2 class="t-name"><a href="https://github.com/Matz999/glitchy" target="_blank" rel="noopener">glitchy<span class="arr">↗</span></a></h2>
         <p class="t-desc">Editor de imágenes en el navegador con ocho efectos escritos a mano sobre canvas: desplazamiento RGB, datamosh, pixelado, líneas de escaneo, bandas de color. Sin backend: la imagen nunca sale de tu máquina.</p>
       </div>
       <div class="t-meta">
-        <span class="t-status">Código abierto</span>
-        <span class="t-stack">JavaScript · Canvas 2D</span>
         <span class="t-links">
           <a href="https://github.com/Matz999/glitchy" target="_blank" rel="noopener">Código</a>
         </span>
