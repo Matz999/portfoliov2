@@ -6,7 +6,10 @@
       "WebFetch(domain:evturner.dev)",
       "mcp__Claude_Preview__preview_start",
       "Bash(curl -sL -m 20 https://studio-vanta.com/)",
-      "Bash(find /c/Users/maxim/Desktop/studio-vanta-main -maxdepth 3 -type f | head -25 *)"
+      "Bash(find /c/Users/maxim/Desktop/studio-vanta-main -maxdepth 3 -type f | head -25 *)",
+      "Bash(node build_cv2.js \"/c/Users/maxim/Downloads/Maximo_Pulitano_CV.docx\")",
+      "Bash(mkdir -p \"/c/Users/maxim/Downloads/CVs Maximo\")",
+      "Bash(node build_variants.js \"/c/Users/maxim/Downloads/CVs Maximo\")"
     ]
   }
 }

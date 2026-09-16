@@ -28,7 +28,7 @@
     --ink-2:   #3a3a3a;
     --mute:    #888880;
     --line:    #E8E8E8;
-    --accent:  #8B1010;
+    --accent:  #111111;
     --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
     --sans:    'Inter Tight', system-ui, sans-serif;
     --bar:     56px;
@@ -120,7 +120,8 @@
     position:relative;
     line-height:0;
   }
-  .tile img{
+  .tile img,
+  .tile video{
     width:100%;
     height:auto;
     display:block;
@@ -128,7 +129,23 @@
   }
   /* Fade each image in once it has decoded */
   .tile img:not(.loaded){opacity:0}
-  .tile:hover img{transform:scale(1.035)}
+  .tile:hover img,
+  .tile:hover video{transform:scale(1.035)}
+  /* Small badge so a moving tile reads as a video, not a glitching image */
+  .tile .vbadge{
+    position:absolute;
+    top:8px;right:8px;
+    z-index:2;
+    display:flex;align-items:center;justify-content:center;
+    width:26px;height:26px;
+    border-radius:50%;
+    background:rgba(0,0,0,.55);
+    color:#fff;
+    font-size:11px;
+    line-height:0;
+    padding-left:1px;
+    pointer-events:none;
+  }
 
   /* Lightbox */
   .lightbox{
@@ -157,6 +174,13 @@
     transition:transform .3s cubic-bezier(.2,.9,.3,1);
   }
   .lightbox.show img{transform:scale(1)}
+  .lightbox video{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    box-shadow:0 30px 80px -20px rgba(0,0,0,.6);
+    cursor:default;
+  }
   .lightbox .lb-close{
     position:fixed;
     top:clamp(14px, 2vw, 26px);
@@ -188,8 +212,8 @@
   .lightbox .lb-next{right:clamp(12px, 2vw, 26px)}
   .lightbox .lb-nav:hover,.lightbox .lb-close:hover{background:rgba(255,255,255,.18)}
 
-  ::selection{background:#8B1010;color:#fff}
-  ::-moz-selection{background:#8B1010;color:#fff}
+  ::selection{background:#111;color:#fff}
+  ::-moz-selection{background:#111;color:#fff}
 </style>
 </head>
 <body>
@@ -216,6 +240,7 @@
   <button class="lb-close" id="lbClose" aria-label="Cerrar">✕</button>
   <button class="lb-nav lb-prev" id="lbPrev" aria-label="Anterior">‹</button>
   <img id="lbImg" alt="" />
+  <video id="lbVid" controls playsinline loop style="display:none"></video>
   <button class="lb-nav lb-next" id="lbNext" aria-label="Siguiente">›</button>
 </div>
 
@@ -234,12 +259,25 @@
   const BASE = '../gd/';
   const label = f => f.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ');
 
+  // The gallery leads with the Corner Studio work: a short reel, then three stills.
+  // Each entry is either an image filename (string) or a {video, poster} object.
+  const MEDIA = [
+    { video:'corner-studio-reel.mp4', poster:'corner-studio-reel.webp', label:'Corner Studio — reel' },
+    'corner-studio-1.webp', 'corner-studio-2.webp', 'corner-studio-3.webp',
+    ...IMAGES,
+  ];
+  const isVid = m => typeof m === 'object';
+  const cap   = m => isVid(m) ? m.label : label(m);
+
   const gallery = document.getElementById('gallery');
-  gallery.innerHTML = IMAGES.map((f, i) =>
-    `<a class="tile" href="${BASE}${encodeURIComponent(f)}" data-i="${i}" aria-label="${label(f)}">` +
-      `<img loading="lazy" decoding="async" src="${BASE}${encodeURIComponent(f)}" alt="${label(f)}" />` +
-    `</a>`
-  ).join('');
+  gallery.innerHTML = MEDIA.map((m, i) => {
+    const inner = isVid(m)
+      ? `<video src="${BASE}${m.video}" poster="${BASE}${m.poster}" muted loop playsinline autoplay preload="metadata"></video>` +
+        `<span class="vbadge" aria-hidden="true">▶</span>`
+      : `<img loading="lazy" decoding="async" src="${BASE}${encodeURIComponent(m)}" alt="${cap(m)}" />`;
+    const href = isVid(m) ? BASE + m.video : BASE + encodeURIComponent(m);
+    return `<a class="tile${isVid(m) ? ' is-video' : ''}" href="${href}" data-i="${i}" aria-label="${cap(m)}">${inner}</a>`;
+  }).join('');
 
   // Fade each tile in once it has actually decoded
   gallery.querySelectorAll('img').forEach(img => {
@@ -250,17 +288,33 @@
   // ── Lightbox ───────────────────────────────────────────────────────────────
   const lb    = document.getElementById('lightbox');
   const lbImg = document.getElementById('lbImg');
+  const lbVid = document.getElementById('lbVid');
   let idx = -1;
 
   function open(i){
-    idx = (i + IMAGES.length) % IMAGES.length;
-    lbImg.src = BASE + encodeURIComponent(IMAGES[idx]);
-    lbImg.alt = label(IMAGES[idx]);
+    idx = (i + MEDIA.length) % MEDIA.length;
+    const m = MEDIA[idx];
+    if (isVid(m)){
+      lbImg.style.display = 'none';
+      lbImg.removeAttribute('src');
+      lbVid.style.display = '';
+      lbVid.src = BASE + m.video;
+      lbVid.play().catch(() => {});
+    } else {
+      lbVid.pause();
+      lbVid.removeAttribute('src');
+      lbVid.load();
+      lbVid.style.display = 'none';
+      lbImg.style.display = '';
+      lbImg.src = BASE + encodeURIComponent(m);
+      lbImg.alt = cap(m);
+    }
     lb.classList.add('show');
     lb.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
   }
   function close(){
+    lbVid.pause();
     lb.classList.remove('show');
     lb.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';

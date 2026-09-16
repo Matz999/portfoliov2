@@ -1967,7 +1967,8 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
   });
   heroEl.addEventListener('pointerleave', () => {
     releaseCursor();
-    heatTarget = 0; focusTarget = 0;
+    focusTarget = 0;
+    if (mobile) heatTarget = 0;   // desktop keeps the idle field alive; mobile fades
   });
   // Touch: a swipe ends when the finger lifts or the browser steals the gesture
   // for a scroll — fade the field out then, the way leaving the box does on desktop.
@@ -1985,6 +1986,19 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     curInside = true;
     ptrCX = e.clientX; ptrCY = e.clientY;
   });
+
+  // The heatmap is alive from load — it animates immediately, no hover required.
+  // On desktop it idles as an even simmer across the nodes; hovering still focuses
+  // a node and the cursor source still trails the pointer. Mobile stays touch-
+  // driven (no nodes to simmer). To keep it cheap, the loop only runs while the
+  // hero is actually on screen.
+  if (!mobile){ armed = true; heatTarget = 1; }
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver((ents) => {
+      if (mobile) return;
+      heatTarget = ents[0].isIntersecting ? 1 : 0;
+    }, { threshold: 0 }).observe(heroEl);
+  }
 
   function setGlowTarget(i){
     if (i < 0){
