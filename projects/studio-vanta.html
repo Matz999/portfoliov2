@@ -4,12 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Studio Vanta — Máximo Pulitano</title>
-<meta name="description" content="Identidad y sitio web para Studio Vanta, un estudio de diseño ficticio: marca, sistema visual y build en HTML, CSS y JS." />
+<meta name="description" content="Identidad y sitio web para Studio Vanta, un estudio de diseño: marca, sistema visual y build en HTML, CSS y JS." />
 
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://maximopulitano.pages.dev/projects/studio-vanta.html" />
 <meta property="og:title" content="Studio Vanta — Máximo Pulitano" />
-<meta property="og:description" content="Identidad y sitio web para un estudio de diseño ficticio: marca, sistema visual y build sin dependencias." />
+<meta property="og:description" content="Identidad y sitio web para un estudio de diseño: marca, sistema visual y build sin dependencias." />
 <meta property="og:image" content="https://maximopulitano.pages.dev/project_images/og-studio-vanta.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
@@ -17,11 +17,18 @@
 
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
+  /* Self-hosted ABC Areal (variable, one file covers every weight) */
+  @font-face{
+    font-family:'Areal';
+    src:url('../fonts/areal-variable.woff2') format('woff2'),
+        url('../fonts/areal-variable.ttf') format('truetype');
+    font-weight:100 900;
+    font-style:normal;
+    font-display:swap;
+  }
+
   :root{
     --bg:      #FFFFFF;
     --ink:     #111111;
@@ -29,8 +36,8 @@
     --mute:    #888880;
     --line:    #E8E8E8;
     --accent:  #111111;
-    --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
-    --sans:    'Inter Tight', system-ui, sans-serif;
+    --display: 'Areal', Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    --sans:    'Areal', Arial, 'Helvetica Neue', Helvetica, sans-serif;
     --bar:     56px;
   }
 
@@ -82,7 +89,7 @@
     position:absolute;
     inset:0;
     display:grid;
-    grid-template-columns:2.15fr 1fr;
+    grid-template-columns:3fr 1fr;
     gap:0;
     opacity:0;
     pointer-events:none;
@@ -103,10 +110,12 @@
     padding:0;
     border-right:1px solid var(--line);
   }
-  .slide .image img{
+  .slide .image img,
+  .slide .image video{
     width:100%;
     height:100%;
     object-fit:cover;
+    display:block;
   }
   .slide .image.logo{padding:clamp(24px, 4vw, 64px)}
   .slide .image.logo img{
@@ -119,10 +128,12 @@
   /* Text side */
   .slide .text{
     height:100%;
-    padding:clamp(28px, 4vw, 64px);
+    padding:clamp(32px, 6vh, 56px) clamp(28px, 4vw, 64px);
     display:flex;
     flex-direction:column;
-    justify-content:center;
+    justify-content:flex-start;
+    align-items:center;
+    text-align:center;
     gap:15px;
     max-width:680px;
   }
@@ -158,6 +169,7 @@
     margin-top:2px;
     display:flex;
     flex-direction:column;
+    align-items:center;
     gap:9px;
   }
   .slide .text .facts li{
@@ -171,68 +183,73 @@
   .slide .text .facts a{transition:color .25s}
   .slide .text .facts a:hover{color:var(--accent)}
 
-  /* Advance button (bottom-right) */
-  .advance{
+  /* Progress - a small black pill centred in the text column; one white dot per
+     slide, morphing into "anterior"/"proximo" at the two ends */
+  .progress{
     position:fixed;
-    bottom:22px;
-    right:clamp(20px, 3vw, 40px);
+    bottom:clamp(28px, 4vw, 64px);
+    left:87.5%;
+    transform:translateX(-50%);
     z-index:60;
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    border:1px solid var(--ink);
-    background:var(--bg);
-    color:var(--ink);
-    font-family:var(--display);
-    font-weight:500;
-    font-size:22px;
-    cursor:pointer;
-    display:inline-flex;
+    display:flex;
     align-items:center;
-    justify-content:center;
-    transition:background .2s, color .2s, transform .3s, opacity .2s;
-  }
-  .advance:hover{
-    background:var(--ink);
-    color:var(--bg);
-    transform:translateY(-2px);
-  }
-  .advance.end{
-    width:auto;
-    padding:0 22px;
+    gap:0;
+    padding:5px 12px;
+    background:#000;
     border-radius:999px;
-    font-family:var(--display);
-    font-size:12px;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    height:48px;
+    box-shadow:0 6px 20px -8px rgba(0,0,0,.4);
+    transition:padding .35s cubic-bezier(.4,0,.2,1);
   }
-
-  /* Back button (left of arrow) */
-  .back{
-    position:fixed;
-    bottom:22px;
-    right:calc(clamp(20px, 3vw, 40px) + 72px);
-    z-index:60;
-    width:56px;
-    height:56px;
-    border-radius:50%;
-    border:1px solid var(--line);
-    background:var(--bg);
-    color:var(--mute);
-    font-family:var(--display);
-    font-weight:500;
-    font-size:20px;
-    cursor:pointer;
+  .progress .dots{
     display:inline-flex;
     align-items:center;
-    justify-content:center;
-    transition:background .2s, color .2s, border-color .2s, opacity .2s;
-    opacity:0;
-    pointer-events:none;
+    gap:9px;
+    padding:0 4px;
+    height:14px;
+    overflow:hidden;
+    max-width:220px;
+    opacity:1;
+    transition:opacity .3s ease, max-width .4s cubic-bezier(.4,0,.2,1);
   }
-  .back.visible{opacity:1;pointer-events:auto}
-  .back:hover{border-color:var(--ink);color:var(--ink)}
+  .progress .dot{
+    flex:0 0 auto;
+    width:7px;
+    height:7px;
+    border-radius:50%;
+    background:rgba(255,255,255,.34);
+    border:0;
+    padding:0;
+    cursor:pointer;
+    transition:background .25s, transform .25s;
+  }
+  .progress .dot:hover{background:rgba(255,255,255,.7)}
+  .progress .dot.active{
+    background:#fff;
+    transform:scale(1.3);
+  }
+  .progress .prev,
+  .progress .prox{
+    display:inline-flex;
+    align-items:center;
+    overflow:hidden;
+    max-width:0;
+    opacity:0;
+    white-space:nowrap;
+    color:#fff;
+    font-family:var(--display);
+    font-weight:600;
+    font-size:11px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    transition:opacity .3s ease, max-width .4s cubic-bezier(.4,0,.2,1);
+  }
+  /* At the ends the dots collapse and the matching label expands - the pill morphs */
+  .progress.end,
+  .progress.start{cursor:pointer}
+  .progress.end .dots,
+  .progress.start .dots{max-width:0; opacity:0; pointer-events:none; padding:0}
+  .progress.end .prox{max-width:170px; opacity:1}
+  .progress.start .prev{max-width:170px; opacity:1}
 
   ::selection{background:#111;color:#fff}
   ::-moz-selection{background:#111;color:#fff}
@@ -254,11 +271,16 @@
     .slide .image.logo{padding:clamp(24px, 4vw, 64px)}
   .slide .image.logo img{max-width:240px;max-height:50%}
     .slide .text{padding:32px 24px 80px;max-width:none}
-    .advance, .back{display:none}
+    .progress{display:none}
   }
+
+  /* Areal: a touch heavier body */
+  body{ font-weight:500; }
+  .slide .text p{ font-weight:500; }
 </style>
 </head>
 <body>
+
 
 <header class="top">
   <a href="../index.html#work">← Portfolio</a>
@@ -269,8 +291,9 @@
 
   <!-- 01 — Hero -->
   <section class="slide" data-load>
-    <div class="image logo">
-      <img data-src="../project_images/vanta1.png" alt="Studio Vanta — marca" />
+    <div class="image">
+      <video src="../project_images/studio-vanta-reel.mp4" poster="../project_images/studio-vanta-reel.webp"
+             autoplay loop muted playsinline preload="metadata" aria-label="Studio Vanta — sitio en movimiento"></video>
     </div>
     <div class="text">
       <h1>Studio<br>Vanta</h1>
@@ -280,18 +303,18 @@
   <!-- 02 — Brief -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/studio_vanta.png" alt="Composición principal Studio Vanta" />
+      <img data-src="../project_images/sv-hero.webp" alt="Studio Vanta — hero: titular y campo de calor tramado" />
     </div>
     <div class="text">
-      <h2>Un estudio que no existe.</h2>
-      <p>Studio Vanta es un estudio inventado: me di a mí mismo el encargo que nadie me había hecho. Nombre, voz, equipo y sistema visual salieron del mismo ejercicio — diseñar una identidad completa sin un cliente que la recorte, y después construir el sitio que la sostiene. <em>Inventar el brief también es diseñar</em>.</p>
+      <h2>Marca, sistema y sitio.</h2>
+      <p>Studio Vanta es un estudio de diseño con un sistema completo: nombre, voz, equipo y lenguaje visual, y el sitio que los reúne. Una identidad diseñada <em>de punta a punta</em> y construida a mano — de la marca a la última línea de código.</p>
     </div>
   </section>
 
   <!-- 03 — Aproximación -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/Screenshot%202026-06-16%20231441.png" alt="Sitio Studio Vanta — vista principal" />
+      <img data-src="../project_images/sv-services.webp" alt="Studio Vanta — servicios: sistema tipográfico y paleta saturada" />
     </div>
     <div class="text">
       <h2>Restricción tipográfica, libertad cromática.</h2>
@@ -303,19 +326,19 @@
   <!-- 04 — Sistema -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/Screenshot%202026-06-16%20231508.png" alt="Sitio Studio Vanta — sección de trabajo" />
+      <img data-src="../project_images/sv-team.webp" alt="Studio Vanta — equipo: retratos en dither de dos tonos" />
     </div>
     <div class="text">
       <h2>Editorial antes que UX.</h2>
       <p>El sitio se estructura como una grilla editorial: hero, servicios numerados, equipo, contacto. Cada bloque respira por sí solo. La navegación es lineal — sin menús desplegables, sin sidebars.</p>
-      <p>Los retratos del equipo pasan por un dither de dos tonos: el mismo lenguaje de trama que gobierna el hero. La ficción se sostiene por el <em>sistema</em>, no por el texto.</p>
+      <p>Los retratos del equipo pasan por un dither de dos tonos: el mismo lenguaje de trama que gobierna el hero. La coherencia se sostiene por el <em>sistema</em>, no por el texto.</p>
     </div>
   </section>
 
   <!-- 05 — Resultado -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/Screenshot%202026-06-16%20231535.png" alt="Sitio Studio Vanta — detalle" />
+      <img data-src="../project_images/sv-hero-2.webp" alt="Studio Vanta — el hero es un canvas de calor" />
     </div>
     <div class="text">
       <h2>El hero no es una imagen.</h2>
@@ -337,7 +360,7 @@
         <li>Concepto, identidad y desarrollo</li>
         <li>Marca, sistema visual, sitio web</li>
         <li>Figma, HTML, CSS, JS, Canvas</li>
-        <li>Estudio ficticio · sitio completo</li>
+        <li>Proyecto propio · sitio completo</li>
       </ul>
     </div>
   </section>
@@ -345,18 +368,47 @@
 </div>
 
 <!-- Fixed UI -->
-<button class="back" id="back" aria-label="Anterior">↑</button>
-<button class="advance" id="advance" aria-label="Siguiente">↓</button>
+<div class="progress" id="progress" aria-label="Progreso de diapositivas"></div>
 
 <script>
 (() => {
   const slides   = Array.from(document.querySelectorAll('.slide'));
   const total    = slides.length;
-  const advance  = document.getElementById('advance');
-  const back     = document.getElementById('back');
+  const progress = document.getElementById('progress');
+  const NEXT_PROJECT = 'mamiferos-argentinos.html';   // deck flows on to this project past the last slide
+  const PREV_PROJECT = 'ditherme.html';   // ...and back to this one before the first (null = none)
+
+  // Build one clickable dot per slide (inside a wrapper that collapses at the
+  // ends), plus the "anterior"/"proximo" labels the pill morphs into
+  const prev = document.createElement('span');
+  prev.className = 'prev';
+  prev.textContent = '← anterior';
+  progress.appendChild(prev);
+  const dotsWrap = document.createElement('span');
+  dotsWrap.className = 'dots';
+  const dots = slides.map((_, i) => {
+    const d = document.createElement('button');
+    d.type = 'button';
+    d.className = 'dot';
+    d.setAttribute('aria-label', 'Ir a la diapositiva ' + (i + 1));
+    d.addEventListener('click', (e) => { e.stopPropagation(); showSlide(i); });
+    dotsWrap.appendChild(d);
+    return d;
+  });
+  progress.appendChild(dotsWrap);
+  const prox = document.createElement('span');
+  prox.className = 'prox';
+  prox.textContent = 'próximo →';
+  progress.appendChild(prox);
+  // At the ends the whole pill becomes a project-jump button
+  progress.addEventListener('click', () => {
+    if (progress.classList.contains('end')) goForward();
+    else if (progress.classList.contains('start')) goBack();
+  });
 
   let currentIdx = 0;
   let isAnimating = false;
+  let backArmed = false;   // first up-scroll reveals "anterior"; the next one goes back
 
   // Lazy-load image only when its slide is about to appear
   function loadImage(idx){
@@ -380,44 +432,44 @@
     slides[currentIdx].classList.remove('active');
     slides[idx].classList.add('active');
     currentIdx = idx;
+    backArmed = false;
+    progress.classList.remove('start');
     updateUI();
     setTimeout(() => { isAnimating = false; }, 160);
   }
 
   function updateUI(){
-    // Back visibility
-    back.classList.toggle('visible', currentIdx > 0);
-    // Advance: switch to "next project" CTA on last slide
-    if (currentIdx === total - 1){
-      advance.innerHTML = 'Próximo →';
-      advance.classList.add('end');
-      advance.setAttribute('aria-label', 'Próximo proyecto');
-    } else {
-      advance.innerHTML = '↓';
-      advance.classList.remove('end');
-      advance.setAttribute('aria-label', 'Siguiente');
-    }
+    dots.forEach((d, i) => d.classList.toggle('active', i === currentIdx));
+    progress.classList.toggle('end', currentIdx === total - 1);
   }
 
-  // Initial state: load first two slides
-  slides[0].classList.add('active');
-  loadImage(0);
-  loadImage(1);
+  // Initial slide - normally the first, but "anterior" from the next project
+  // lands us on the last one (via the #last hash); tidy the URL afterwards.
+  if (location.hash === '#last') currentIdx = total - 1;
+  history.replaceState(null, '', location.pathname);
+  slides[currentIdx].classList.add('active');
+  loadImage(currentIdx);
+  loadImage(currentIdx + 1);
+  loadImage(currentIdx - 1);
   updateUI();
 
-  // Click: advance or jump to next project
-  advance.addEventListener('click', () => {
-    if (currentIdx >= total - 1){
-      window.location.href = 'mamiferos-argentinos.html';
-      return;
-    }
+  // Advancing past the last slide flows on to the next project
+  function goForward(){
+    // A down-scroll while "anterior" is showing just dismisses it back to the dots
+    if (backArmed){ backArmed = false; progress.classList.remove('start'); return; }
+    if (currentIdx >= total - 1){ window.location.href = NEXT_PROJECT; return; }
     showSlide(currentIdx + 1);
-  });
+  }
 
-  // Back
-  back.addEventListener('click', () => {
-    showSlide(currentIdx - 1);
-  });
+  // Scrolling up past the first slide reveals "anterior" first; the next up-scroll
+  // (or a click on it) flows back to the previous project's last slide.
+  function goBack(){
+    if (currentIdx > 0){ showSlide(currentIdx - 1); return; }
+    if (!PREV_PROJECT) return;
+    if (!backArmed){ backArmed = true; progress.classList.add('start'); return; }
+    window.location.href = PREV_PROJECT + '#last';
+  }
+
 
   // Wheel: convert vertical scroll to slide changes
   let wheelLock = false;
@@ -425,11 +477,11 @@
     if (wheelLock) return;
     if (e.deltaY > 20){
       wheelLock = true;
-      if (currentIdx < total - 1) showSlide(currentIdx + 1);
+      goForward();
       setTimeout(() => { wheelLock = false; }, 180);
     } else if (e.deltaY < -20){
       wheelLock = true;
-      if (currentIdx > 0) showSlide(currentIdx - 1);
+      goBack();
       setTimeout(() => { wheelLock = false; }, 180);
     }
   }, { passive: true });
@@ -438,10 +490,10 @@
   window.addEventListener('keydown', (e) => {
     if (['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){
       e.preventDefault();
-      if (currentIdx < total - 1) showSlide(currentIdx + 1);
+      goForward();
     } else if (['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){
       e.preventDefault();
-      if (currentIdx > 0) showSlide(currentIdx - 1);
+      goBack();
     }
   });
 
@@ -455,8 +507,8 @@
     if (window.innerWidth < 820 || touchStartY === null) return;
     const dy = e.changedTouches[0].clientY - touchStartY;
     if (Math.abs(dy) > 40){
-      if (dy < 0 && currentIdx < total - 1) showSlide(currentIdx + 1);
-      else if (dy > 0 && currentIdx > 0) showSlide(currentIdx - 1);
+      if (dy < 0) goForward();
+      else if (dy > 0) goBack();
     }
     touchStartY = null;
   }, { passive: true });

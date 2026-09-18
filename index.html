@@ -870,6 +870,13 @@
   .preview.small{
     width:clamp(110px, 11vw, 160px);
   }
+  /* Cursor mode — a big arrow pointer whose tip sits on the actual pointer */
+  .preview.cursor{
+    width:clamp(120px, 12vw, 172px);
+    filter:drop-shadow(0 8px 14px rgba(0,0,0,.28));
+    transform:translate(-5%, -4%) scale(.9);
+  }
+  .preview.cursor.show{transform:translate(-5%, -4%) scale(1)}
   @media (max-width:920px), (hover:none){
     .preview{display:none !important}
   }
@@ -939,7 +946,7 @@
         </a>
       </li>
       <li>
-        <a class="project" href="projects/lab.html" data-preview="project_images/lab-preview.webp">
+        <a class="project" href="projects/lab.html" data-preview="project_images/cursor.svg" data-preview-mode="cursor">
           <span class="p-title">Lab</span>
           <span class="p-category">Herramientas &amp; experimentos · detox, yt gist, Tessera</span>
           <span class="p-year">2023–2026</span>
@@ -1302,7 +1309,9 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     el.addEventListener('pointerenter', () => {
       const src = el.dataset.preview;
       if (src) img.src = src;
-      preview.classList.toggle('transparent', el.dataset.previewMode === 'transparent');
+      const mode = el.dataset.previewMode;
+      preview.classList.toggle('transparent', mode === 'transparent' || mode === 'cursor');
+      preview.classList.toggle('cursor', mode === 'cursor');
       preview.classList.toggle('small', el.dataset.previewSize === 'small');
       preview.classList.add('show');
     });
@@ -1720,18 +1729,7 @@ document.querySelectorAll('.reveal').forEach(el => io.observe(el));
     c.setAttribute('cy', 0);
     g.appendChild(c);
 
-    const t = document.createElementNS(SVG_NS,'text');
-    t.classList.add('node-label');
-    let lx=0, ly=0, anchor='middle';
-    if (n.dir==='left'){  lx=-16; ly=5;  anchor='end'; }
-    if (n.dir==='right'){ lx= 16; ly=5;  anchor='start'; }
-    if (n.dir==='up'){    lx=  0; ly=-16; anchor='middle'; }
-    if (n.dir==='down'){  lx=  0; ly= 34; anchor='middle'; }
-    t.setAttribute('x', lx);
-    t.setAttribute('y', ly);
-    t.setAttribute('text-anchor', anchor);
-    t.textContent = n.label;
-    g.appendChild(t);
+    // No visible number label on the nodes.
 
     svg.appendChild(g);
     return g;

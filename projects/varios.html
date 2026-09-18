@@ -17,11 +17,18 @@
 
 <link rel="icon" type="image/svg+xml" href="../favicon.svg">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700;800&family=Inter+Tight:wght@300..700&display=swap" rel="stylesheet">
 
 <style>
+  /* Self-hosted ABC Areal (variable, one file covers every weight) */
+  @font-face{
+    font-family:'Areal';
+    src:url('../fonts/areal-variable.woff2') format('woff2'),
+        url('../fonts/areal-variable.ttf') format('truetype');
+    font-weight:100 900;
+    font-style:normal;
+    font-display:swap;
+  }
+
   :root{
     --bg:      #FFFFFF;
     --ink:     #111111;
@@ -29,8 +36,8 @@
     --mute:    #888880;
     --line:    #E8E8E8;
     --accent:  #111111;
-    --display: 'Hanken Grotesk', 'Helvetica Neue', Arial, sans-serif;
-    --sans:    'Inter Tight', system-ui, sans-serif;
+    --display: 'Areal', Arial, 'Helvetica Neue', Helvetica, sans-serif;
+    --sans:    'Areal', Arial, 'Helvetica Neue', Helvetica, sans-serif;
     --bar:     56px;
   }
 
@@ -214,9 +221,14 @@
 
   ::selection{background:#111;color:#fff}
   ::-moz-selection{background:#111;color:#fff}
+
+  /* Areal: a touch heavier body */
+  body{ font-weight:500; }
+  .slide .text p{ font-weight:500; }
 </style>
 </head>
 <body>
+
 
 <header class="top">
   <a href="../index.html#work">← Portfolio</a>
