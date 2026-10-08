@@ -9,7 +9,12 @@
       "Bash(find /c/Users/maxim/Desktop/studio-vanta-main -maxdepth 3 -type f | head -25 *)",
       "Bash(node build_cv2.js \"/c/Users/maxim/Downloads/Maximo_Pulitano_CV.docx\")",
       "Bash(mkdir -p \"/c/Users/maxim/Downloads/CVs Maximo\")",
-      "Bash(node build_variants.js \"/c/Users/maxim/Downloads/CVs Maximo\")"
+      "Bash(node build_variants.js \"/c/Users/maxim/Downloads/CVs Maximo\")",
+      "Bash(sed -n '/<ul class=\"projects/,/<\\\\/ul>/p' index.html)",
+      "Read(//c/Users/maxim/Desktop/**)",
+      "Read(//c/Users/maxim/AppData/Local/Temp/claude/C--Users-maxim-Desktop-portfoliov2/3aacbe49-9f84-40fe-b432-8936019a3b4d/scratchpad/**)",
+      "Bash(node capture-abece1.js)",
+      "Bash(node capture-abece3.js)"
     ]
   }
 }

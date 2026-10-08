@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mamíferos Argentinos — Máximo Pulitano</title>
-<meta name="description" content="Rediseño y reconstrucción en Next.js de la lista roja de mamíferos de la Argentina: 426 páginas prerenderizadas sobre datos públicos de SAREM." />
+<title>Street Level — Máximo Pulitano</title>
+<meta name="description" content="Street Level: el sitio de Corner Studio, un estudio de identidad, packaging y motion. Un bailarín 3D reducido a puntos, scroll narrativo y mucho color, con Three.js, GSAP y Lenis." />
 
 <meta property="og:type" content="article" />
-<meta property="og:url" content="https://maximopulitano.pages.dev/projects/mamiferos-argentinos.html" />
-<meta property="og:title" content="Mamíferos Argentinos — Máximo Pulitano" />
-<meta property="og:description" content="Rediseño y build en Next.js de la lista roja nacional de mamíferos: 426 páginas prerenderizadas, sin backend." />
-<meta property="og:image" content="https://maximopulitano.pages.dev/project_images/og-mamiferos.png" />
+<meta property="og:url" content="https://maximopulitano.pages.dev/projects/street-level.html" />
+<meta property="og:title" content="Street Level — Máximo Pulitano" />
+<meta property="og:description" content="Un bailarín 3D hecho de puntos, un estudio que habla fuerte y un sitio que se mueve: Three.js, GSAP y Lenis." />
+<meta property="og:image" content="https://maximopulitano.pages.dev/project_images/og-street-level.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
@@ -110,10 +110,12 @@
     padding:0;
     border-right:1px solid var(--line);
   }
-  .slide .image img{
+  .slide .image img,
+  .slide .image video{
     width:100%;
     height:100%;
     object-fit:cover;
+    display:block;
   }
   .slide .image.logo{padding:clamp(24px, 4vw, 64px)}
   .slide .image.logo img{
@@ -159,8 +161,7 @@
   }
   .slide .text p + p{margin-top:14px}
   .slide .text p em{font-style:normal;font-weight:700;color:var(--accent)}
-  .slide .text p a{border-bottom:1px solid var(--line)}
-  .slide .text p a:hover{border-bottom-color:var(--accent)}
+
 
   /* Ficha tecnica (sin rotulos) */
   .slide .text .facts{
@@ -276,6 +277,18 @@
   /* Areal: a touch heavier body */
   body{ font-weight:500; }
   .slide .text p{ font-weight:500; }
+
+  /* Live link (hero + credits) */
+  .live{
+    font-family:var(--display);
+    font-size:13px;
+    font-weight:500;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--accent);
+    align-self:center;
+  }
+  .live:hover{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -290,118 +303,76 @@
 
   <!-- 01 — Hero -->
   <section class="slide" data-load>
-    <div class="image logo">
-      <img data-src="../project_images/mamifero_logo.png" alt="Mamíferos Argentinos — marca" />
+    <div class="image">
+      <video src="../project_images/street-level/street-level-reel.mp4" poster="../project_images/street-level/street-level-reel.webp"
+             autoplay loop muted playsinline preload="metadata" aria-label="Street Level — recorrido por el sitio"></video>
     </div>
     <div class="text">
-      <h1>Mamíferos<br>Argentinos</h1>
+      <h1>Street<br>Level</h1>
     </div>
   </section>
 
-  <!-- 02 — Home -->
+  <!-- 02 — Los años -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/mamiferos/home.webp" alt="Portada del sitio Mamíferos Argentinos" />
+      <img data-src="../project_images/street-level/street-years.webp" alt="Street Level — años de trabajo en números de damero y sello en estrella" />
     </div>
     <div class="text">
-      <h2>Un sitio institucional que también invita a explorar.</h2>
-      <p>Rediseño y reconstrucción de <a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">cma.sarem.org.ar</a>, la lista roja nacional de mamíferos. Un prototipo hecho sobre los datos públicos del sitio oficial: la portada abre con la especie destacada y un buscador directo, porque el original cumplía la función informativa pero <em>perdía</em> a estudiantes, divulgadores y curiosos.</p>
+      <h2>Un estudio, una pared.</h2>
+      <p>Street Level es el sitio de Corner Studio, un estudio de identidad, packaging y motion. El trabajo se cuenta como una grilla de años, de 2018 a 2026, con números en damero extruidos sobre azul y un sello en estrella que invita a entrar.</p>
     </div>
   </section>
 
-  <!-- 03 — Estado en números -->
+  <!-- 03 — La voz -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/mamiferos/estado-numeros.webp" alt="Cuatro cifras clave del estado de conservación" />
+      <img data-src="../project_images/street-level/street-hero.webp" alt="Street Level — titular en cajas apiladas, foto de la calle y el bailarín" />
     </div>
     <div class="text">
-      <h2>El dato antes que el discurso.</h2>
-      <p>417 especies evaluadas, 101 amenazadas, 68 con datos insuficientes, 7 ya extintas. La primera pantalla resume la magnitud del problema en cifras que se leen de un vistazo <em>antes</em> de entrar al detalle.</p>
+      <h2>Fuerte a propósito.</h2>
+      <p>El sitio habla como el estudio: toma la idea que sobró, el color equivocado, la toma de ensayo, y la infla al tamaño de una pared. Titulares en cajas apiladas, una foto de la calle y colores que no piden perdón.</p>
+      <p>A veces, lo enorme es la solución. <em>Se deja la costura a la vista</em>.</p>
     </div>
   </section>
 
-  <!-- 04 — Reparto de especies -->
+  <!-- 04 — El bailarín -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/mamiferos/reparto-especies.webp" alt="Barra de distribución por categoría UICN" />
+      <img data-src="../project_images/street-level/street-level-dancer.webp" alt="Street Level — seis poses del bailarín hecho de puntos" />
     </div>
     <div class="text">
-      <h2>Una sola barra para entender la lista roja.</h2>
-      <p>Cada franja es proporcional a la cantidad de especies en su categoría UICN, de <em>extinta</em> a <em>preocupación menor</em>. La visualización vuelve tangible una tabla que en el original era pura planilla.</p>
+      <h2>Un bailarín hecho de puntos.</h2>
+      <p>El protagonista es un modelo 3D animado con diez clips de movimiento — hip hop, rumba, uprock, robot, swing, salto y más — renderizado con Three.js y reducido a una trama de puntos con una matriz Bayer de 4×4.</p>
+      <p>Al moverse deja un rastro: una máscara que se acumula y <em>revela el negativo</em> de una foto de la calle.</p>
     </div>
   </section>
 
-  <!-- 05 — En peligro crítico -->
+  <!-- 05 — Cada sección, un clima -->
   <section class="slide" data-load>
     <div class="image">
-      <img data-src="../project_images/mamiferos/peligro-critico.webp" alt="Fichas de las siete especies en peligro crítico" />
+      <img data-src="../project_images/street-level/street-contact.webp" alt="Street Level — contacto sobre un campo de estrellas lima, violeta y magenta" />
     </div>
     <div class="text">
-      <h2>Cada especie, una ficha con cara.</h2>
-      <p>Fotografía, nombre común y científico, familia y tendencia poblacional. La grilla de fichas convierte la categoría más urgente en algo <em>concreto</em>: siete animales, no una sigla.</p>
-    </div>
-  </section>
-
-  <!-- 06 — Cambios 2019 -->
-  <section class="slide" data-load>
-    <div class="image">
-      <img data-src="../project_images/mamiferos/cambios-2019.webp" alt="Comparación de categorías entre 2019 y 2024" />
-    </div>
-    <div class="text">
-      <h2>El matiz importa: no todo cambio es deterioro.</h2>
-      <p>39 especies cambiaron de categoría entre 2019 y 2024. La comparación separa las que <em>empeoraron</em> de las que solo se pudieron evaluar mejor — un detalle que el dato crudo suele borrar.</p>
-    </div>
-  </section>
-
-  <!-- 07 — Distribución -->
-  <section class="slide" data-load>
-    <div class="image">
-      <img data-src="../project_images/mamiferos/distribucion.webp" alt="Riqueza de especies por provincia" />
-    </div>
-    <div class="text">
-      <h2>Navegación por territorio, no por taxonomía.</h2>
-      <p>Riqueza de especies por provincia, ordenada y tocable para ver el listado de cada jurisdicción. Reorganizar la entrada por geografía la vuelve <em>más narrativa</em> y accesible al no-especialista.</p>
-    </div>
-  </section>
-
-  <!-- 08 — Por grupo -->
-  <section class="slide" data-load>
-    <div class="image">
-      <img data-src="../project_images/mamiferos/por-grupo.webp" alt="Navegación por grupo taxonómico" />
-    </div>
-    <div class="text">
-      <h2>Y para quien sí busca la taxonomía.</h2>
-      <p>Roedores y murciélagos concentran dos tercios de la diversidad del país. Las tarjetas por orden mantienen una jerarquía tipográfica clara: display para los grupos, mono para el conteo de especies.</p>
-    </div>
-  </section>
-
-  <!-- 09 — El proyecto -->
-  <section class="slide" data-load>
-    <div class="image">
-      <img data-src="../project_images/mamiferos/el-proyecto.webp" alt="Sección El proyecto, metodología y créditos" />
-    </div>
-    <div class="text">
-      <h2>426 páginas, cero backend.</h2>
-      <p>Metodología, categorías, cómo citar y de dónde salen los datos, todo a un clic. Y debajo, la decisión de fondo: el original es una SPA que le pide todo a una API, así que cada ficha le llega a Google como un HTML vacío. Acá las 417 fichas se <em>prerenderizan en el build</em> — HTML completo, metadata y sitemap por especie, servible desde un CDN y sin caerse si se cae la API.</p>
+      <h2>Cada sección, un clima.</h2>
+      <p>Del azul liso de los años a un contacto sobre un campo de estrellas lima, violeta y magenta; del cielo de la portada a páginas por año, cada una con su método. GSAP y Lenis llevan el scroll, y Vite lo compila todo.</p>
     </div>
   </section>
 
   <!-- 06 — Ficha técnica -->
   <section class="slide" data-load>
     <div class="image logo">
-      <img data-src="../project_images/mamifero_logo.png" alt="Mamíferos Argentinos — cierre" />
+      <img data-src="../project_images/street-level/dancer-still.webp" alt="Street Level — cierre" />
     </div>
     <div class="text">
-      <h2>Mamíferos Argentinos</h2>
+      <h2>Street Level</h2>
       <ul class="facts">
-        <li>Proyecto de diseño y desarrollo</li>
-        <li>2024</li>
+        <li>Sitio web · identidad en movimiento</li>
+        <li>2025</li>
         <li>Buenos Aires, AR</li>
-        <li>Identidad, diseño y desarrollo</li>
-        <li>Logo, sistema visual, sitio de 426 páginas</li>
-        <li>Next.js, React, TypeScript, Tailwind, Figma</li>
-        <li><a href="https://cma.sarem.org.ar" target="_blank" rel="noopener">SAREM · cma.sarem.org.ar ↗</a></li>
-        <li>Prototipo sobre datos públicos</li>
+        <li>Diseño, animación 3D y desarrollo</li>
+        <li>Three.js, GSAP, Lenis, Vite</li>
+        <li>Modelo animado · dither Bayer · scroll narrativo</li>
+        <li>Sitio para Corner Studio</li>
       </ul>
     </div>
   </section>
@@ -416,8 +387,8 @@
   const slides   = Array.from(document.querySelectorAll('.slide'));
   const total    = slides.length;
   const progress = document.getElementById('progress');
-  const NEXT_PROJECT = 'varios.html';   // deck flows on to this project past the last slide
-  const PREV_PROJECT = 'studio-vanta.html';   // ...and back to this one before the first (null = none)
+  const NEXT_PROJECT = 'studio-vanta.html';   // deck flows on to this project past the last slide
+  const PREV_PROJECT = 'abece.html';   // ...and back to this one before the first (null = none)
 
   // Build one clickable dot per slide (inside a wrapper that collapses at the
   // ends), plus the "anterior"/"proximo" labels the pill morphs into
@@ -451,6 +422,7 @@
   let isAnimating = false;
   let backArmed = false;   // first up-scroll reveals "anterior"; the next one goes back
 
+  // Lazy-load image only when its slide is about to appear
   function loadImage(idx){
     const slide = slides[idx];
     if (!slide) return;
@@ -464,7 +436,9 @@
   function showSlide(idx){
     if (idx < 0 || idx >= total || idx === currentIdx) return;
     isAnimating = true;
+    // Load this slide's image if not yet
     loadImage(idx);
+    // Preload neighbour (next) so transitions feel instant
     loadImage(idx + 1);
 
     slides[currentIdx].classList.remove('active');
@@ -509,6 +483,7 @@
   }
 
 
+  // Wheel: convert vertical scroll to slide changes
   let wheelLock = false;
   window.addEventListener('wheel', (e) => {
     if (wheelLock) return;
@@ -523,6 +498,7 @@
     }
   }, { passive: true });
 
+  // Keyboard navigation
   window.addEventListener('keydown', (e) => {
     if (['ArrowDown','ArrowRight','PageDown',' '].includes(e.key)){
       e.preventDefault();
@@ -533,9 +509,10 @@
     }
   });
 
+  // Touch swipe (mobile fallback when stage is fixed)
   let touchStartY = null;
   window.addEventListener('touchstart', (e) => {
-    if (window.innerWidth < 820) return;
+    if (window.innerWidth < 820) return; // mobile uses natural scroll
     touchStartY = e.changedTouches[0].clientY;
   }, { passive: true });
   window.addEventListener('touchend', (e) => {
